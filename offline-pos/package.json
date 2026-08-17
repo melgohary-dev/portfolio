@@ -1,0 +1,63 @@
+{
+  "name": "offline-pos",
+  "private": true,
+  "version": "0.1.0",
+  "description": "OfflinePOS — an offline-first point-of-sale demo. Local database first, background sync, USB thermal printing. Web app + Electron shell + React Native client share the @offlinepos/core package.",
+  "author": "Qumra",
+  "license": "MIT",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "workspaces": [
+    "packages/core",
+    "apps/native"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "postbuild": "node scripts/inject-sw-precache.mjs",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:watch": "vitest",
+    "typecheck": "tsc -b --noEmit",
+    "electron": "electron .",
+    "electron:build": "npm run build && electron .",
+    "dist": "electron-builder --publish never",
+    "dist:dir": "electron-builder --dir"
+  },
+  "dependencies": {
+    "@offlinepos/core": "*",
+    "@tailwindcss/vite": "^4.3.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.555.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "sql.js": "^1.14.1",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss": "^4.3.0",
+    "zustand": "^5.0.13"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19",
+    "@types/sql.js": "^1.4.11",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/coverage-v8": "^4.1.10",
+    "electron": "^43.4.0",
+    "electron-builder": "^26.15.3",
+    "eslint": "^9",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "jsdom": "^26.1.0",
+    "prettier": "^3.8.1",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.59.2",
+    "vite": "^8.0.12",
+    "vitest": "^4.1.10",
+    "@playwright/test": "^1.62.1"
+  }
+}

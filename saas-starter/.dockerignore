@@ -1,0 +1,13 @@
+node_modules
+.git
+.gitignore
+*.log
+dist
+.turbo
+apps/web/.next
+apps/web/node_modules
+apps/api/node_modules
+packages/*/node_modules
+packages/*/dist
+planning
+C:\Users\ALJAZE~1\AppData\Local\Temp\opencode

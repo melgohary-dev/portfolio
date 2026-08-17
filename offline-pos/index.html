@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f6aad" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="OfflinePOS" />
+    <meta
+      name="description"
+      content="OfflinePOS — a point-of-sale demo that works fully offline. Local database first, background sync."
+    />
+    <title>OfflinePOS — Offline-first Point of Sale</title>
+    <script>
+      // Apply the persisted dark theme before first paint so the app never
+      // flashes light. Same storage contract as the theme store in src/store.
+      (function () {
+        try {
+          var saved = JSON.parse(localStorage.getItem("offlinepos:theme") || "null");
+          if (saved && saved.state && saved.state.theme === "dark") {
+            document.documentElement.classList.add("dark");
+          }
+        } catch (e) {
+          /* corrupted storage — stay light; the app re-persists on load */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

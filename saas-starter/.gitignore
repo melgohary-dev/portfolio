@@ -1,0 +1,15 @@
+node_modules/
+.turbo/
+.next/
+dist/
+out/
+.env
+.env.*
+!.env.example
+*.log
+coverage/
+.DS_Store
+*.tsbuildinfo
+
+# Local planning notes (not published)
+planning/

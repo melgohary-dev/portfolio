@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+body {
+  font-family:
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+* {
+  scrollbar-gutter: stable;
+}
+
+:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.dark :focus-visible {
+  outline-color: #3b82f6;
+}
+
+/* ---------- Animations (disabled for reduced motion) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes page-enter {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Page exit + enter via the View Transitions API */
+  ::view-transition-old(root) {
+    animation: vt-out 0.26s ease;
+  }
+
+  ::view-transition-new(root) {
+    animation: vt-in 0.26s ease;
+  }
+
+  @keyframes vt-out {
+    to {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
+  @keyframes vt-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+
+  .animate-page-enter {
+    animation: page-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.25s ease both;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+/* ---------- Tooltips (collapsed sidebar) ---------- */
+.tip {
+  position: relative;
+}
+
+.tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: 50%;
+  inset-inline-start: calc(100% + 10px);
+  transform: translateY(-50%);
+  z-index: 60;
+  white-space: nowrap;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18);
+}
+
+.dark .tip::after {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.tip:hover::after,
+.tip:focus-visible::after {
+  opacity: 1;
+}
+
+/* Tooltip shown above the trigger (sidebar footer toggles) */
+.tip-above::after {
+  top: auto;
+  bottom: calc(100% + 10px);
+  inset-inline-end: auto;
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+}
+
+[dir="rtl"] .tip-above::after {
+  transform: translateX(50%);
+}

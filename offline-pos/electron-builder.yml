@@ -1,0 +1,34 @@
+appId: com.qumra.offlinepos
+productName: OfflinePOS
+copyright: Copyright © 2026 Qumra
+directories:
+  output: release
+  buildResources: electron
+files:
+  - dist/**
+  - electron/**
+  - package.json
+  - "!node_modules/**"
+asar: true
+npmRebuild: false
+win:
+  target:
+    - nsis
+nsis:
+  oneClick: true
+  perMachine: false
+  artifactName: OfflinePOS-${version}-setup.${ext}
+mac:
+  category: public.app-category.business
+  target:
+    - dmg
+    - zip
+  artifactName: OfflinePOS-${version}-${arch}.${ext}
+linux:
+  category: Utility
+  maintainer: Qumra
+  synopsis: Offline-first point of sale
+  target:
+    - AppImage
+    - deb
+  artifactName: OfflinePOS-${version}-${arch}.${ext}

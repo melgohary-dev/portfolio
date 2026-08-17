@@ -1,0 +1,23 @@
+{
+  "name": "@offlinepos/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Platform-neutral offline-first POS engine: orders, mutation queue, sync, thermal receipts.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./browser": {
+      "types": "./src/browser/index.ts",
+      "default": "./src/browser/index.ts"
+    },
+    "./types": {
+      "types": "./src/types.ts",
+      "default": "./src/types.ts"
+    }
+  }
+}
