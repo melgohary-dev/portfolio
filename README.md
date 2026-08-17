@@ -1,63 +1,96 @@
-# Qumra Portfolio
+# Portfolio
 
-Clean, public portfolio projects built to demonstrate the work I delivered at Qumra for a Saudi client (Mostadam).
+Three production-grade demo apps showcasing the full stack I delivered at Qumra
+for a Saudi retail/SaaS client — offline-first POS, a 120k-row admin grid, and a
+complete multi-tenant SaaS backend.
 
-> ⚠️ **Confidentiality:** the production code lives in private client repos. Everything in this folder is a **clean-room demo** — no client code, secrets, API endpoints, or branding.
+Each project is a **clean-room reimplementation** of patterns I shipped in
+production. No client code, secrets, API endpoints, or branding.
+
+---
 
 ## Projects
 
-### 1. [`offline-pos`](./offline-pos) — Offline-First Point of Sale
+### [OfflinePOS](./offline-pos) — Offline-First Point of Sale
 
-The flagship. A React 19 + Vite + TypeScript POS where checkout works with **zero network** — orders write to a local database first, queue as mutations, and sync in the background with exponential backoff. Includes the full architecture it's famous for:
+A React + Vite POS where checkout works with **zero network**. Orders write to a
+local database first, queue as mutations, and sync in the background with
+exponential backoff.
 
-- `StorageProvider` interface (localStorage demo → SQLite/WASM in production)
-- Outbox-style **mutation queue** with pending/synced/dead states
-- **Sync engine** with retry, backoff, and temp-ID resolution
-- **Live multi-tab sync** — `BroadcastChannel` + heartbeat registry, so a sale,
-  a parked cart, or a sync event in one tab updates every open tab instantly
-  (sidebar shows "N tabs live · updated Xs ago")
+- `StorageProvider` abstraction (localStorage demo → SQLite/WASM production path)
+- Outbox-style mutation queue with pending / synced / dead states
+- Sync engine with retry, backoff, and temp-ID resolution
+- Live multi-tab sync via BroadcastChannel + heartbeat registry
 - Parked carts, multi-tax + percent discounts, order editing, full AR/EN RTL
-- 100+ unit tests covering the queue, sync engine, checkout, and cross-tab sync
+- 113 unit tests + Playwright e2e offline-sync suite
 
-**Stack:** React 19 · Vite 8 · TypeScript · Zustand · Tailwind v4 · Vitest
+> [Watch the demo](./offline-pos/docs/demo/offline-pos-demo.webm) — catalog,
+> cart, discounts, charge, offline simulation, and background sync.
 
-### 2. [`admin-dashboard`](./admin-dashboard) — Admin Back-Office
+**Stack:** React 19 · Vite · TypeScript · Zustand · Tailwind v4 · Vitest · Playwright
 
-A Next.js 16 admin console that doubles as a **high-performance data-grid showcase**: a virtualized **120,000-row** orders table that scrolls, sorts and filters smoothly, aggregates on a background **Web Worker** (with measured ms), exports CSV from that worker, and persists saved views — all localized (AR/RTL) and theme-aware.
+---
 
-- Row virtualization (only ~20 DOM rows mounted) + pinned start/end columns
-- Seeded deterministic dataset (same 120k orders on every reload)
+### [Admin Dashboard](./admin-dashboard) — Admin Back-Office
+
+A Next.js admin console built around a **virtualized 120,000-row orders grid**.
+Scrolls, sorts, and filters smoothly. Aggregation runs on a background Web Worker
+with measured ms. CSV export, saved views, full AR/EN RTL.
+
+- Row virtualization (~20 DOM nodes for 120k rows) + pinned start/end columns
+- Seeded deterministic dataset — same orders on every reload
+- Web Worker offloads sort/filter/aggregate off the main thread
 - KPI dashboard with charts, users page, settings page
+- Playwright e2e suite (5/5 passing)
 
 **Stack:** Next.js 16 · React 19 · TypeScript · Tailwind v4 · Recharts · TanStack Table & Virtual
 
-### 3. [`saas-starter`](./saas-starter) — Full-Stack SaaS Starter
+---
 
-A complete, deployable multi-tenant SaaS backend + dashboard that ties the POS and
-grid skills into one product. Turborepo monorepo: Next.js web app, Hono OpenAPI
-backend, Postgres + Drizzle, Auth.js, Stripe billing (with a built-in simulated
-checkout/portal), and full EN/AR localization.
+### [SaaS Starter](./saas-starter) — Full-Stack SaaS Backend
 
-- **Multi-tenancy** — `tenant_id` scoping (RLS-ready) with an invite/member model;
-  every order, stat, and billing action is isolated per organization
-- **Billing** — Free/Pro plans; mock mode needs no Stripe keys (simulated checkout
-  + customer portal), real Stripe test mode optional
-- **Realtime** — Server-Sent Events push new-order toasts to every open tab
-- **I18n** — EN/AR with RTL, cookie-synced locale, custom `NestedKeyOf` messages
-- **Observability** — pino structured JSON logs with per-request `requestId`
-- **Quality gates** — 24/24 turbo tasks green (`typecheck lint build test`),
-  30 unit/integration tests, 17 i18n checks, 6-step E2E happy path, GitHub
-  Actions CI (Postgres service + full gate on every PR), verified
-  `docker compose up` (Postgres healthcheck-gated, migrations on boot)
+A complete, deployable multi-tenant SaaS monorepo. Next.js web app, Hono
+OpenAPI backend, Postgres + Drizzle ORM, Auth.js, Stripe billing (with simulated
+checkout), SSE realtime, and full EN/AR localization.
 
-**Stack:** Next.js 16 · Hono (OpenAPI) · Postgres · Drizzle ORM · Auth.js · Stripe · pino · Vitest · Docker
+- **Multi-tenancy** — tenant_id scoping (RLS-ready) with invite/member model
+- **Billing** — Free/Pro plans; simulated mode needs no Stripe keys
+- **Realtime** — SSE pushes new-order toasts to every open tab
+- **Auth** — HMAC-signed request tokens between web and API
+- **I18n** — EN/AR with RTL, cookie-synced locale
+- 24/24 turbo gates green · 30 unit/integration tests · GitHub Actions CI
 
-## Production context (not included here)
+> [Watch the demo](./saas-starter/docs/demo/saas-demo.webm) — sign up → invite →
+> order (live SSE toast) → upgrade to Pro → analytics → Arabic/RTL.
 
-The production work behind these demos at Qumra:
+**Stack:** Next.js 16 · Hono · Postgres · Drizzle · Auth.js · Stripe · Docker · Vitest
 
-- **Offline-first POS system** used for real retail checkout — SQLite/WASM local database, USB thermal printing, PWA, Electron desktop wrapper with cross-platform installers (Windows/macOS/Linux) via GitHub Actions
-- **`@qumra/pos-core`** shared data-access library consumed by Web, Electron, and React Native, covering ~85% of the app's data layer
-- **Next.js admin dashboard** with 25+ modules (CRM, Billing, Governance, Marketing, Analytics), rich-text editor, and custom query builder
-- **Accounts + partner portal** with unified authentication and dual-token GraphQL
-- Full **AR/EN localization and RTL** for a Saudi client
+---
+
+## Production context
+
+The production work behind these demos:
+
+- **Offline-first POS** — SQLite/WASM local DB, USB thermal printing, PWA,
+  Electron desktop with cross-platform installers (Win/macOS/Linux) via CI
+- **`@qumra/pos-core`** — shared data-access library (Web + Electron + React
+  Native) covering ~85% of the app's data layer
+- **Admin dashboard** — 25+ modules (CRM, Billing, Governance, Marketing,
+  Analytics), rich-text editor, custom query builder
+- **Accounts + partner portal** — unified auth, dual-token GraphQL
+- Full **AR/EN localization and RTL** throughout
+
+## Running locally
+
+Each project is self-contained. See its README for setup instructions:
+
+```bash
+# Offline POS
+cd offline-pos && pnpm install && pnpm dev    # → :5173
+
+# Admin Dashboard
+cd admin-dashboard && npm install && npm run dev  # → :3000
+
+# SaaS Starter
+cd saas-starter && pnpm install && pnpm dev       # → :3000 + :4000
+```
