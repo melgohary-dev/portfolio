@@ -98,7 +98,7 @@ certificate builder, preview mode, and auto-save to localStorage.
 
 ## Production context
 
-### Qumra (Saudi retail/SaaS client — Mostadam)
+### [Qumra](https://www.linkedin.com/company/qumracloud) (Saudi retail/SaaS client — Mostadam)
 
 - **Offline-first POS** — SQLite/WASM local DB, USB thermal printing, PWA,
   Electron desktop with cross-platform installers (Win/macOS/Linux) via CI
