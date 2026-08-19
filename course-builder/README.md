@@ -6,7 +6,8 @@ be dragged, reordered, and nested. Full undo/redo, keyboard-accessible DnD,
 dark/light mode, preview mode, and auto-save to localStorage.
 
 This is a clean-room demo of the drag-and-drop content builders I built at
-Qumra/Lumofy for course and certificate template editing.
+**Lumofy** for the Learning Experience Platform (LXP), enabling non-technical
+admins to create courses and certificate templates without developer support.
 
 ## Architecture
 

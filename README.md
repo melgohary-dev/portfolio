@@ -1,8 +1,8 @@
 # Portfolio
 
-Four production-grade demo apps showcasing the full stack I delivered at Qumra
-for a Saudi retail/SaaS client — offline-first POS, a 120k-row admin grid, a
-complete multi-tenant SaaS backend, and a drag-and-drop course builder.
+Four production-grade demo apps showcasing the full stack I delivered across
+**Qumra** (offline-first POS, admin dashboard, SaaS platform) and **Lumofy**
+(drag-and-drop course builder for a corporate learning experience platform).
 
 Each project is a **clean-room reimplementation** of patterns I shipped in
 production. No client code, secrets, API endpoints, or branding.
@@ -12,6 +12,8 @@ production. No client code, secrets, API endpoints, or branding.
 ## Projects
 
 ### [OfflinePOS](./offline-pos) — Offline-First Point of Sale
+
+> **Qumra** — Built for a Saudi retail client (Mostadam)
 
 A React + Vite POS where checkout works with **zero network**. Orders write to a
 local database first, queue as mutations, and sync in the background with
@@ -33,6 +35,8 @@ exponential backoff.
 
 ### [Admin Dashboard](./admin-dashboard) — Admin Back-Office
 
+> **Qumra** — Rebranded existing admin console for Mostadam
+
 A Next.js admin console built around a **virtualized 120,000-row orders grid**.
 Scrolls, sorts, and filters smoothly. Aggregation runs on a background Web Worker
 with measured ms. CSV export, saved views, full AR/EN RTL.
@@ -50,6 +54,8 @@ with measured ms. CSV export, saved views, full AR/EN RTL.
 ---
 
 ### [SaaS Starter](./saas-starter) — Full-Stack SaaS Backend
+
+> **Qumra** — Accounts, partner portal, and multi-tenant SaaS backend
 
 A complete, deployable multi-tenant SaaS monorepo. Next.js web app, Hono
 OpenAPI backend, Postgres + Drizzle ORM, Auth.js, Stripe billing (with simulated
@@ -72,6 +78,8 @@ checkout), SSE realtime, and full EN/AR localization.
 
 ### [Course Builder](./course-builder) — Drag-and-Drop Course Builder
 
+> **Lumofy** — Course and certificate template editing for the LXP
+
 A visual course editor built with React 19 and dnd-kit. Build structured
 curricula with modules, lessons, and content blocks (text, video, quiz, image,
 assignment, divider). Drag-and-drop reordering, multi-language support with RTL,
@@ -90,7 +98,7 @@ certificate builder, preview mode, and auto-save to localStorage.
 
 ## Production context
 
-The production work behind these demos:
+### Qumra (Saudi retail/SaaS client — Mostadam)
 
 - **Offline-first POS** — SQLite/WASM local DB, USB thermal printing, PWA,
   Electron desktop with cross-platform installers (Win/macOS/Linux) via CI
@@ -98,25 +106,37 @@ The production work behind these demos:
   Native) covering ~85% of the app's data layer
 - **Admin dashboard** — 25+ modules (CRM, Billing, Governance, Marketing,
   Analytics), rich-text editor, custom query builder
-- **Course builder** — multi-language course and certificate template editing with
-  drag-and-drop content blocks
 - **Accounts + partner portal** — unified auth, dual-token GraphQL
 - Full **AR/EN localization and RTL** throughout
+
+### [Lumofy](https://www.linkedin.com/company/lumofyinc) (Corporate Learning Experience Platform)
+
+- **Course builder** — drag-and-drop course and content template editing with
+  multi-language version isolation
+- **Certificate builder** — drag-and-drop certificate template editor
+- **AI-powered features** — content recommendations, AI-generated learning
+  content, competency analysis
+- **Architecture migrations** — MUI → Ant Design, Zustand state management
+- Improved LXP UI performance by **60%** through rendering optimization
 
 ## Running locally
 
 Each project is self-contained. See its README for setup instructions:
 
 ```bash
-# Offline POS
+# Offline POS (Qumra)
 cd offline-pos && pnpm install && pnpm dev    # → :5173
 
-# Admin Dashboard
+# Admin Dashboard (Qumra)
 cd admin-dashboard && pnpm install && pnpm dev  # → :3000
 
-# SaaS Starter (requires Postgres on :5432)
+# SaaS Starter — requires Postgres on :5432 (Qumra)
 cd saas-starter && pnpm install && pnpm dev       # → :3000 + :4000
 
-# Course Builder
+# Course Builder (Lumofy)
 cd course-builder && pnpm install && pnpm dev     # → :5173
 ```
+
+## Contact
+
+Mohamed Elgohary — [melgohary.dev@gmail.com](mailto:melgohary.dev@gmail.com) · [GitHub](https://github.com/melgohary-dev) · [LinkedIn](https://www.linkedin.com/in/melgohary-dev)
