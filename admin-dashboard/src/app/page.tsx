@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -20,7 +20,7 @@ import { Sparkline } from "@/components/sparkline";
 import { StatusBadge } from "@/components/status-badge";
 import { RevenueOverview } from "@/components/revenue-overview";
 import { PaymentChart } from "@/components/payment-chart";
-import { useOrdersAggregation } from "@/lib/use-orders-aggregation";
+import { useOrdersAggregation } from "@/hooks/use-orders-aggregation";
 import { buildStats } from "@/lib/orders-stats";
 import type { Messages, NestedKeyOf } from "@/lib/i18n";
 
@@ -38,17 +38,17 @@ const STAT_LABELS: Record<string, NestedKeyOf<Messages>> = {
   refundRate: "dashboard.refundRate",
 };
 
-function StatCard({ stat }: { stat: DashboardStat }) {
+const StatCard = memo(function StatCard({ stat }: { stat: DashboardStat }) {
   const { t } = useSettings();
   const Icon = STAT_ICONS[stat.id] ?? Wallet;
   const good = stat.trend === "up" ? stat.favorable : !stat.favorable;
   const value = stat.value;
 
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+    <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm text-slate-700 dark:text-slate-400">
+          <p className="text-sm text-slate-700 dark:text-slate-300">
             {t(STAT_LABELS[stat.id] ?? "dashboard.totalRevenue")}
           </p>
           <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
@@ -80,7 +80,7 @@ function StatCard({ stat }: { stat: DashboardStat }) {
           <ArrowDownRight className="h-3.5 w-3.5" />
         )}
         {stat.change}%
-        <span className="font-normal text-slate-600 dark:text-slate-500">
+        <span className="font-normal text-slate-600 dark:text-slate-400">
           {t("dashboard.vsLastMonth")}
         </span>
       </p>
@@ -94,7 +94,7 @@ function StatCard({ stat }: { stat: DashboardStat }) {
       </div>
     </div>
   );
-}
+});
 
 export default function DashboardPage() {
   const { t, formatMoney } = useSettings();
@@ -126,7 +126,7 @@ export default function DashboardPage() {
         <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
           {t("dashboard.title")}
         </h1>
-        <p className="text-sm text-slate-700 dark:text-slate-400">
+        <p className="text-sm text-slate-700 dark:text-slate-300">
           {t("dashboard.subtitle")}
         </p>
       </div>
@@ -145,26 +145,26 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 xl:grid-cols-3">
-        <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+        <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
           <div className="mb-4">
             <h2 className="font-semibold text-slate-900 dark:text-slate-100">
               {t("dashboard.topProducts")}
             </h2>
-            <p className="text-xs text-slate-700 dark:text-slate-400">
+            <p className="text-xs text-slate-700 dark:text-slate-300">
               {t("dashboard.topProductsSubtitle")}
             </p>
           </div>
           <ul className="divide-y divide-slate-100 dark:divide-slate-800">
             {TOP_PRODUCTS.map((product, index) => (
               <li key={product.name} className="flex items-center gap-3 py-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-100 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-400">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-100 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                   {index + 1}
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">
                     {product.name}
                   </p>
-                  <p className="text-xs text-slate-600 dark:text-slate-500">
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
                     {product.units} {t("dashboard.units")}
                   </p>
                 </div>
@@ -197,23 +197,23 @@ export default function DashboardPage() {
           </ul>
         </div>
 
-        <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800 xl:col-span-2">
+        <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700 xl:col-span-2">
           <div className="border-b border-slate-100 px-5 py-4 dark:border-slate-800">
             <h2 className="font-semibold text-slate-900 dark:text-slate-100">
               {t("dashboard.recentOrders")}
             </h2>
-            <p className="text-xs text-slate-700 dark:text-slate-400">
+            <p className="text-xs text-slate-700 dark:text-slate-300">
               {t("dashboard.recentOrdersSubtitle")}
             </p>
           </div>
-          <table className="w-full text-start text-sm">
-            <thead className="border-b border-slate-100 bg-slate-50 text-xs uppercase tracking-wide text-slate-700 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-400">
+          <table className="w-full text-start text-sm" aria-label={t("dashboard.recentOrders")}>
+            <thead className="border-b border-slate-100 bg-slate-50 text-xs uppercase tracking-wide text-slate-700 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-300">
               <tr>
-                <th className="px-5 py-3 font-medium">{t("dashboard.order")}</th>
-                <th className="px-5 py-3 font-medium">{t("dashboard.customer")}</th>
-                <th className="px-5 py-3 font-medium">{t("dashboard.payment")}</th>
-                <th className="px-5 py-3 font-medium">{t("dashboard.status")}</th>
-                <th className="px-5 py-3 text-end font-medium">
+                <th scope="col" className="px-5 py-3 font-medium">{t("dashboard.order")}</th>
+                <th scope="col" className="px-5 py-3 font-medium">{t("dashboard.customer")}</th>
+                <th scope="col" className="px-5 py-3 font-medium">{t("dashboard.payment")}</th>
+                <th scope="col" className="px-5 py-3 font-medium">{t("dashboard.status")}</th>
+                <th scope="col" className="px-5 py-3 text-end font-medium">
                   {t("dashboard.totalColumn")}
                 </th>
               </tr>
@@ -230,13 +230,13 @@ export default function DashboardPage() {
                   <td className="px-5 py-3 text-slate-600 dark:text-slate-300">
                     {order.customer}
                   </td>
-                  <td className="px-5 py-3 capitalize text-slate-600 dark:text-slate-400">
-                    {t(`payment.${order.payment}` as never)}
+                  <td className="px-5 py-3 capitalize text-slate-600 dark:text-slate-300">
+                    {t(`payment.${order.payment}` as NestedKeyOf<Messages>)}
                   </td>
                   <td className="px-5 py-3">
                     <StatusBadge
                       status={order.status}
-                      label={t(`status.${order.status}` as never)}
+                      label={t(`status.${order.status}` as NestedKeyOf<Messages>)}
                     />
                   </td>
                   <td className="px-5 py-3 text-end font-semibold text-slate-800 dark:text-slate-100">
@@ -254,7 +254,7 @@ export default function DashboardPage() {
 
 function KpiSkeleton() {
   return (
-    <div className="animate-pulse rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+    <div className="animate-pulse rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
       <div className="h-3 w-24 rounded bg-slate-100 dark:bg-slate-800" />
       <div className="mt-3 h-7 w-28 rounded bg-slate-100 dark:bg-slate-800" />
       <div className="mt-3 h-8 w-full rounded bg-slate-100 dark:bg-slate-800" />

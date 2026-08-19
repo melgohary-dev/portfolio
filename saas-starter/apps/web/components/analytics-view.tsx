@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { StatsResponse } from '@saas/shared';
 import { useI18n } from '@/components/i18n-provider';
+import { Kpi } from '@/components/kpi';
 import { formatMoney, formatNumber } from '@/lib/format';
 
 const statusColors: Record<string, string> = {
@@ -157,15 +158,6 @@ export function AnalyticsView() {
         </div>
         <p className="mt-2 text-xs text-gray-500">{t('analytics.successRateHint')}</p>
       </section>
-    </div>
-  );
-}
-
-function Kpi({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg border p-4">
-      <p className="text-sm text-gray-600">{label}</p>
-      <p className="mt-1 text-2xl font-semibold">{value}</p>
     </div>
   );
 }

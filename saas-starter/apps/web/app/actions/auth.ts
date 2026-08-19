@@ -11,6 +11,7 @@ import {
 } from '@saas/auth/db';
 import { renderResetPasswordEmail, sendEmail } from '@saas/email';
 import { users } from '@saas/db/schema';
+import { eq } from '@saas/db';
 import { z } from 'zod';
 
 export type AuthActionState = { error?: string; ok?: boolean };
@@ -19,6 +20,28 @@ const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
 });
+
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_SWEEP_INTERVAL = 60_000;
+let lastSweep = Date.now();
+
+function checkRateLimit(key: string, maxAttempts: number, windowMs: number): boolean {
+  const now = Date.now();
+  if (now - lastSweep > RATE_LIMIT_SWEEP_INTERVAL) {
+    for (const [k, entry] of rateLimitMap) {
+      if (now > entry.resetAt) rateLimitMap.delete(k);
+    }
+    lastSweep = now;
+  }
+  const entry = rateLimitMap.get(key);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(key, { count: 1, resetAt: now + windowMs });
+    return true;
+  }
+  if (entry.count >= maxAttempts) return false;
+  entry.count += 1;
+  return true;
+}
 
 export async function loginAction(
   _prevState: AuthActionState | undefined,
@@ -31,13 +54,18 @@ export async function loginAction(
   if (!parsed.success) {
     return { error: 'INVALID_INPUT' };
   }
+
+  const email = parsed.data.email.trim().toLowerCase();
+  if (!checkRateLimit(`login:${email}`, 5, 60_000)) {
+    return { error: 'RATE_LIMITED' };
+  }
+
   try {
     await signIn('credentials', {
-      email: parsed.data.email,
+      email,
       password: parsed.data.password,
       redirectTo: '/app',
     });
-    // signIn throws NEXT_REDIRECT — this line is unreachable on success.
     return { ok: true };
   } catch (error) {
     if (error instanceof AuthError) {
@@ -50,7 +78,12 @@ export async function loginAction(
 const registerSchema = z.object({
   name: z.string().min(1).max(80),
   email: z.string().email(),
-  password: z.string().min(8).max(200),
+  password: z
+    .string()
+    .min(8)
+    .max(200)
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number'),
   orgName: z.string().min(1).max(80),
 });
 
@@ -67,31 +100,52 @@ export async function registerAction(
   if (!parsed.success) {
     return { error: 'INVALID_INPUT' };
   }
+
   const email = parsed.data.email.trim().toLowerCase();
+  if (!checkRateLimit(`register:${email}`, 3, 300_000)) {
+    return { error: 'RATE_LIMITED' };
+  }
+
   const existing = await getUserByEmail(email);
   if (existing) {
     return { error: 'EMAIL_EXISTS' };
   }
+
   const passwordHash = await hashPassword(parsed.data.password);
-  const [user] = await getDb()
-    .insert(users)
-    .values({ email, name: parsed.data.name, passwordHash })
-    .returning();
+  let user;
+  try {
+    const [created] = await getDb()
+      .insert(users)
+      .values({ email, name: parsed.data.name, passwordHash })
+      .returning();
+    user = created;
+  } catch (err) {
+    if ((err as { code?: string })?.code === '23505') {
+      return { error: 'EMAIL_EXISTS' };
+    }
+    throw err;
+  }
+
   if (!user) {
     return { error: 'ACCOUNT_CREATE_FAILED' };
   }
-  await createOrganization({ userId: user.id, name: parsed.data.orgName });
+
+  try {
+    await createOrganization({ userId: user.id, name: parsed.data.orgName });
+  } catch (orgError) {
+    await getDb().delete(users).where(eq(users.id, user.id)).catch(() => {});
+    return { error: 'ACCOUNT_CREATE_FAILED' };
+  }
+
   try {
     await signIn('credentials', {
       email,
       password: parsed.data.password,
       redirectTo: '/app',
     });
-    // signIn throws NEXT_REDIRECT — unreachable on success.
     return { ok: true };
   } catch (error) {
     if (error instanceof AuthError) {
-      // Auto sign-in failed after account creation; tell the user to sign in manually.
       return { error: 'AUTO_SIGNIN_FAILED' };
     }
     throw error;
@@ -105,6 +159,9 @@ export async function requestPasswordResetAction(
   const email = z.string().email().safeParse(formData.get('email'));
   if (!email.success) {
     return { error: 'ENTER_VALID_EMAIL' };
+  }
+  if (!checkRateLimit(`reset:${email.data}`, 3, 300_000)) {
+    return { error: 'RATE_LIMITED' };
   }
   const result = await createPasswordResetToken(email.data);
   if (result) {
@@ -124,7 +181,13 @@ export async function resetPasswordAction(
   formData: FormData,
 ): Promise<AuthActionState> {
   const token = z.string().min(1).safeParse(formData.get('token'));
-  const password = z.string().min(8).max(200).safeParse(formData.get('password'));
+  const password = z
+    .string()
+    .min(8)
+    .max(200)
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .safeParse(formData.get('password'));
   if (!token.success || !password.success) {
     return { error: 'RESET_INVALID' };
   }

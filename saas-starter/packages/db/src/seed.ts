@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import bcrypt from 'bcryptjs';
+import { randomBytes } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { Pool } from 'pg';
 import { db } from './client.js';
@@ -95,7 +96,18 @@ const eventTypes = [
 ] as const;
 
 const dayMs = 24 * 60 * 60 * 1000;
-const seedPassword = 'Password123!';
+const fixedPassword = process.env.SEED_PASSWORD;
+
+function generatePassword(): string {
+  if (fixedPassword) return fixedPassword;
+  const bytes = randomBytes(18);
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*';
+  let result = '';
+  for (let i = 0; i < 24; i++) {
+    result += chars[bytes[i % bytes.length] % chars.length];
+  }
+  return result;
+}
 
 async function main() {
   const pool = new Pool({ connectionString: url });
@@ -121,23 +133,31 @@ async function main() {
 
     const rng = mulberry32(0xc0ffee);
 
-    const orgUsers: { org: (typeof insertedOrgs)[number]; users: (typeof users.$inferSelect)[] }[] =
-      [];
+    const orgUsers: {
+      org: (typeof insertedOrgs)[number];
+      users: (typeof users.$inferSelect)[];
+      passwords: string[];
+    }[] = [];
     for (const org of insertedOrgs) {
       const def = orgDefs.find((d) => d.slug === org.slug);
       if (!def) {
         throw new Error(`no org def for ${org.slug}`);
       }
       const roles = ['owner', 'admin', 'member1', 'member2'];
+      const passwords: string[] = [];
       const rows = await Promise.all(
-        roles.map(async (role) => ({
-          email: `${role}@${def.emailDomain}`,
-          name: `${def.name} ${role}`,
-          passwordHash: await bcrypt.hash(seedPassword, 12),
-        })),
+        roles.map(async (role) => {
+          const pw = generatePassword();
+          passwords.push(pw);
+          return {
+            email: `${role}@${def.emailDomain}`,
+            name: `${def.name} ${role}`,
+            passwordHash: await bcrypt.hash(pw, 12),
+          };
+        }),
       );
       const created = await client.insert(users).values(rows).returning();
-      orgUsers.push({ org, users: created });
+      orgUsers.push({ org, users: created, passwords });
     }
 
     for (const { org, users: members } of orgUsers) {
@@ -237,10 +257,14 @@ async function main() {
     console.log(`  events: ${eventRows.length}`);
     console.log('  subscriptions: 2');
     console.log('');
-    console.log('Demo logins (password: ' + seedPassword + '):');
-    for (const { org, users: members } of orgUsers) {
-      for (const u of members) {
-        console.log(`  ${u.email.padEnd(24)}  ${org.name}`);
+    console.log('Demo logins (each user has a unique random password):');
+    for (const { org, users: members, passwords } of orgUsers) {
+      for (let i = 0; i < members.length; i++) {
+        const u = members[i];
+        const pw = passwords[i];
+        if (u && pw) {
+          console.log(`  ${u.email.padEnd(24)}  ${org.name.padEnd(16)}  ${pw}`);
+        }
       }
     }
   } finally {

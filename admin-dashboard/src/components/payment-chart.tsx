@@ -5,7 +5,7 @@ import { PAYMENT_METHODS } from "@/lib/data";
 import { useSettings } from "@/components/settings-provider";
 import { tPayment } from "@/lib/i18n";
 import { formatNumber } from "@/lib/utils";
-import { useMounted } from "@/lib/use-mounted";
+import { useMounted } from "@/hooks/use-mounted";
 import type { PaymentMethod } from "@/lib/orders";
 
 export function PaymentChart() {

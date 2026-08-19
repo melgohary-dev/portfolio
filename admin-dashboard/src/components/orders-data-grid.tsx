@@ -9,9 +9,7 @@ import {
   getSortedRowModel,
   useReactTable,
   type ColumnSizingState,
-  type Row,
   type VisibilityState,
-  type RowData,
   type SortingState,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -36,9 +34,34 @@ import {
   type Region,
   type OrderStatus,
 } from "@/lib/orders";
-import { useOrdersAggregation } from "@/lib/use-orders-aggregation";
+import { useOrdersAggregation } from "@/hooks/use-orders-aggregation";
 import type { GridQuery, Outgoing } from "@/lib/orders-worker";
 import { cn } from "@/lib/utils";
+import { VirtualOrderRow } from "./virtual-order-row";
+import { AggCard } from "./agg-card";
+import { useFocusTrap } from "./use-focus-trap";
+import {
+  ALL,
+  COLUMN_IDS,
+  LAYOUT_KEY,
+  LAYOUT_VERSION,
+  PAGE_SIZE,
+  PAGED_PAGE_SIZE,
+  ROW_HEIGHT,
+  VIEWPORT_HEIGHT,
+  VIEWS_KEY,
+  VIEWS_VERSION,
+  type GridMode,
+  type LayoutPrefs,
+  type SavedView,
+  coerceColumnState,
+  isAllowedRegion,
+  isAllowedStatus,
+  matches,
+  parseLayoutPrefs,
+  parseSavedViews,
+  sanitizeSorting,
+} from "./grid-utils";
 
 declare module "@tanstack/react-table" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -47,280 +70,9 @@ declare module "@tanstack/react-table" {
   }
 }
 
+import type { RowData } from "@tanstack/react-table";
+
 const columnHelper = createColumnHelper<OrderRow>();
-const ROW_HEIGHT = 48;
-const VIEWPORT_HEIGHT = 560;
-// One page fills exactly one viewport, so PageUp/PageDown land on the first
-// fully visible row.
-const PAGE_SIZE = Math.max(1, Math.floor(VIEWPORT_HEIGHT / ROW_HEIGHT));
-const PAGED_PAGE_SIZE = 100;
-// Persistence schemas are versioned so a future reader can migrate or reject
-// data written by an older build. See `parseSavedViews` / `parseLayoutPrefs`.
-const VIEWS_VERSION = 1;
-const VIEWS_KEY = "admin-dashboard:orders-views";
-const LAYOUT_VERSION = 1;
-const LAYOUT_KEY = "admin-dashboard:orders-layout";
-
-type GridMode = "virtual" | "paged";
-
-interface SavedView {
-  name: string;
-  search: string;
-  status: string;
-  region: string;
-  sorting: SortingState;
-  columnVisibility: VisibilityState;
-  columnSizing: ColumnSizingState;
-  savedAt: number;
-  version: number;
-}
-
-interface LayoutPrefs {
-  columnVisibility: VisibilityState;
-  columnSizing: ColumnSizingState;
-  version: number;
-}
-
-const ALL = "all";
-
-/** Column ids as stored in `SavedView` / `LayoutPrefs`; used to coerce persisted state. */
-const COLUMN_IDS = ["id", "customer", "region", "payment", "status", "createdAt", "total"] as const;
-
-/**
- * Case-insensitive match over the grid's searchable fields. `idLower`,
- * `customerLower` and `regionLower` are precomputed at generation time
- * (`orders.ts`), so filtering 120k rows never re-lowercases per pass.
- */
-function matches(row: OrderRow, q: string): boolean {
-  const needle = q.trim().toLowerCase();
-  if (!needle) return false;
-  return (
-    row.customerLower.includes(needle) ||
-    row.idLower.includes(needle) ||
-    row.regionLower.includes(needle)
-  );
-}
-
-function isAllowedStatus(v: unknown): v is OrderStatus {
-  return ORDER_STATUSES.includes(v as OrderStatus);
-}
-
-function isAllowedRegion(v: unknown): v is Region {
-  return ORDER_REGIONS.includes(v as Region);
-}
-
-/** Best-effort coercion of persisted column layout, falling back to `{}`. */
-function coerceColumnState<T>(v: unknown, keys: string[]): Record<string, T> {
-  if (typeof v !== "object" || v === null) return {};
-  const out: Record<string, T> = {};
-  for (const [key, value] of Object.entries(v)) {
-    if (keys.includes(key) && (typeof value === "boolean" || typeof value === "number")) {
-      out[key] = value as T;
-    }
-  }
-  return out;
-}
-
-function sanitizeSorting(v: unknown): SortingState {
-  if (!Array.isArray(v)) return [];
-  return v
-    .filter(
-      (s) =>
-        typeof s === "object" &&
-        s !== null &&
-        typeof s.id === "string" &&
-        COLUMN_IDS.includes(s.id as (typeof COLUMN_IDS)[number]) &&
-        (s.desc === true || s.desc === false),
-    )
-    .map((s) => ({ id: String(s.id), desc: Boolean(s.desc) }));
-}
-
-function parseSavedViews(raw: string | null): SavedView[] {
-  if (!raw) return [];
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (v): v is SavedView =>
-        typeof v === "object" &&
-        v !== null &&
-        typeof v.name === "string" &&
-        typeof v.search === "string" &&
-        (v.status === ALL || isAllowedStatus(v.status)) &&
-        (v.region === ALL || isAllowedRegion(v.region)),
-    );
-  } catch {
-    return [];
-  }
-}
-
-function parseLayoutPrefs(raw: string | null): LayoutPrefs | null {
-  if (!raw) return null;
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (typeof parsed !== "object" || parsed === null) return null;
-    const p = parsed as Record<string, unknown>;
-    return {
-      columnVisibility: coerceColumnState<boolean>(p.columnVisibility, [...COLUMN_IDS]),
-      columnSizing: coerceColumnState<number>(p.columnSizing, [...COLUMN_IDS]),
-      version: LAYOUT_VERSION,
-    };
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Keeps keyboard focus inside an open popover: wraps Tab, closes on Escape and
- * returns focus to the trigger button, and moves focus into the panel on open.
- */
-function useFocusTrap(
-  open: boolean,
-  onClose: () => void,
-  restoreRef: React.RefObject<HTMLButtonElement | null>,
-) {
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const panel = ref.current;
-    if (!panel) return;
-
-    const focusable = () =>
-      Array.from(
-        panel.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), input:not([disabled]), select:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
-        ),
-      );
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        onClose();
-        restoreRef.current?.focus();
-      } else if (e.key === "Tab") {
-        const items = focusable();
-        if (items.length === 0) return;
-        const first = items[0];
-        const last = items[items.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    };
-
-    panel.addEventListener("keydown", onKeyDown);
-    const raf = requestAnimationFrame(() => focusable()[0]?.focus());
-    return () => {
-      cancelAnimationFrame(raf);
-      panel.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open, onClose, restoreRef]);
-
-  return ref;
-}
-
-interface VirtualOrderRowProps {
-  row: Row<OrderRow>;
-  index: number;
-  /** Absolute translateY offset from the virtualizer. */
-  start: number;
-  isActive: boolean;
-  /** Re-render key when the visible column set changes. */
-  colVisibilityKey: string;
-  /** Re-render key when any column width changes. */
-  sizingKey: string;
-  flexId: string | null;
-  flexWidth: number;
-  onKeyDown: (e: ReactKeyboardEvent<HTMLElement>, index: number) => void;
-  onActivate: (index: number) => void;
-  rowElsRef: React.MutableRefObject<Map<number, HTMLTableRowElement>>;
-}
-
-/**
- * Memoized row for the virtualized table. Props are plain values + stable
- * callbacks, so keyboard/scroll hover state changes re-render only the
- * affected rows instead of every mounted row. TanStack rows are referentially
- * stable unless data/sort/visibility actually changed, which makes this memo
- * effective. Row height and the pinned/flex column widths are computed inside
- * (they derive from table state the props already capture).
- */
-const VirtualOrderRow = memo(function VirtualOrderRow({
-  row,
-  index,
-  start,
-  isActive,
-  flexId,
-  flexWidth,
-  onKeyDown,
-  onActivate,
-  rowElsRef,
-}: VirtualOrderRowProps) {
-  return (
-    <tr
-      key={row.id}
-      ref={(el) => {
-        const map = rowElsRef.current;
-        if (el) map.set(index, el);
-        else map.delete(index);
-      }}
-      role="row"
-      // +2: the header row occupies aria-rowindex 1, data rows start at 2.
-      aria-rowindex={index + 2}
-      tabIndex={isActive ? 0 : -1}
-      data-index={index}
-      onKeyDown={(e) => onKeyDown(e, index)}
-      onClick={() => onActivate(index)}
-      onFocus={() => onActivate(index)}
-      className={cn(
-        "group absolute inset-x-0 top-0 hover:bg-slate-50/80 dark:hover:bg-slate-800/40",
-        isActive &&
-          "bg-blue-50/40 focus:bg-blue-50/60 dark:bg-blue-950/20 dark:focus:bg-blue-950/40",
-        "focus:outline-2 focus:-outline-offset-2 focus:outline-blue-500",
-      )}
-      style={{
-        transform: `translateY(${start}px)`,
-        height: ROW_HEIGHT,
-      }}
-    >
-      {row.getVisibleCells().map((cell) => {
-        const pinned = cell.column.columnDef.meta?.pinned;
-        return (
-          <td
-            key={cell.id}
-            role="gridcell"
-            className={cn(
-              "border-b border-slate-100 px-5 py-0 text-slate-600 dark:border-slate-800 dark:text-slate-300",
-              pinned === "left" && "sticky z-10 start-0 bg-white dark:bg-slate-900",
-              pinned === "right" &&
-                "sticky z-10 end-0 bg-white text-end dark:bg-slate-900",
-            )}
-            style={{
-              width:
-                cell.column.id === flexId ? flexWidth : cell.column.getSize(),
-              height: ROW_HEIGHT,
-            }}
-          >
-            <div
-              className={cn(
-                "flex h-full items-center",
-                pinned === "right" && "justify-end",
-                cell.column.id === "id" &&
-                  "font-medium text-slate-800 dark:text-slate-100",
-              )}
-            >
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-            </div>
-          </td>
-        );
-      })}
-    </tr>
-  );
-});
 
 export function OrdersDataGrid() {
   const { t, formatMoney } = useSettings();
@@ -341,9 +93,7 @@ export function OrdersDataGrid() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnSizing, setColumnSizing] = useState<ColumnSizingState>({});
   const [columnsOpen, setColumnsOpen] = useState(false);
-  /** Width of the scroll container, so the grid can stretch to fill it. */
   const [containerWidth, setContainerWidth] = useState(0);
-  /** Session-only optimistic status edits: `rowId -> status`. */
   const [statusOverrides, setStatusOverrides] = useState<Record<string, OrderStatus>>({});
 
   const [views, setViews] = useState<SavedView[]>([]);
@@ -352,14 +102,11 @@ export function OrdersDataGrid() {
   const [selectedView, setSelectedView] = useState("");
   const [exporting, setExporting] = useState(false);
 
-  /** Rendering strategy: full row virtualization vs. infinite pagination. */
   const [mode, setMode] = useState<GridMode>("virtual");
   const [loadedPages, setLoadedPages] = useState(1);
   const [pagingMore, setPagingMore] = useState(false);
 
-  /** Data-row index of the keyboard-focused row. */
   const [activeIndex, setActiveIndex] = useState(0);
-  /** Bumped whenever the filtered count changes so the live region re-announces. */
   const [liveTick, setLiveTick] = useState(0);
   const rowEls = useRef<Map<number, HTMLTableRowElement>>(new Map());
   const columnsButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -372,13 +119,24 @@ export function OrdersDataGrid() {
 
   const rows = useMemo(() => getOrders(), []);
 
-  // The raw search drives the input; `debouncedSearch` drives the expensive
-  // 120k-row filter so typing filters once per pause, not per keystroke.
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
     const id = setTimeout(() => setDebouncedSearch(search), 200);
     return () => clearTimeout(id);
   }, [search]);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        searchInputRef.current?.select();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   useEffect(() => {
     try {
@@ -404,8 +162,6 @@ export function OrdersDataGrid() {
     });
   }, [rows, debouncedSearch, status, region]);
 
-  // View-level status edits (optimistic, session-only) applied after filtering
-  // so a status change never silently removes the row from the current filter.
   const displayRows = useMemo(() => {
     const keys = Object.keys(statusOverrides);
     if (keys.length === 0) return filtered;
@@ -415,17 +171,10 @@ export function OrdersDataGrid() {
     });
   }, [filtered, statusOverrides]);
 
-  // Re-announce the result count to screen readers whenever the visible set
-  // changes (filters, search, page size); `liveTick` guarantees the region
-  // fires even when the count is numerically identical to the last one.
   useEffect(() => {
     setLiveTick((n) => n + 1);
   }, [displayRows.length]);
 
-  // In paged mode only the loaded pages are handed to the table; the virtualizer
-  // then bounds mounted DOM rows exactly like virtual mode. Memoized so the
-  // table keeps a stable `data` reference between page loads — otherwise
-  // getRowModel()/getSortedRowModel() re-sort 120k rows on every render.
   const gridData = useMemo(
     () =>
       mode === "paged"
@@ -434,19 +183,13 @@ export function OrdersDataGrid() {
     [mode, displayRows, loadedPages],
   );
 
-  // Re-aggregate the visible/edited set on the worker, debounced. The initial
-  // full-dataset pass already ran inside the hook on mount, so we only fire
-  // when the view actually diverges from the full dataset. The worker filters
-  // its own copy using the same predicate, so no 120k rows cross postMessage.
   useEffect(() => {
-    if (displayRows === rows) return;
     const id = setTimeout(() => {
       aggregate({ search: debouncedSearch, status, region, statusOverrides } satisfies GridQuery);
     }, 300);
     return () => clearTimeout(id);
-  }, [displayRows, rows, aggregate, debouncedSearch, status, region, statusOverrides]);
+  }, [rows, aggregate, debouncedSearch, status, region, statusOverrides]);
 
-  // Remember the last column layout so a refresh restores the user's view.
   useEffect(() => {
     try {
       localStorage.setItem(
@@ -458,8 +201,6 @@ export function OrdersDataGrid() {
     }
   }, [columnVisibility, columnSizing]);
 
-  // Track the visible width so the grid stretches to fill the container even
-  // when the pinned columns alone are narrower than the viewport.
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -470,8 +211,6 @@ export function OrdersDataGrid() {
     return () => ro.disconnect();
   }, []);
 
-  // In paged mode, restart from page 1 whenever the view (filters, sort, mode)
-  // changes and snap the scroll position back to the top.
   useEffect(() => {
     if (mode === "paged") {
       setLoadedPages(1);
@@ -479,7 +218,6 @@ export function OrdersDataGrid() {
     }
   }, [mode, debouncedSearch, status, region, sorting]);
 
-  // Clean up the paging timeout on unmount (the grid remounts on navigation).
   const loadMoreTimer = useRef<number | null>(null);
   useEffect(
     () => () => {
@@ -500,8 +238,6 @@ export function OrdersDataGrid() {
     }, 120);
   }, [mode, pagingMore, loadedPages, displayRows.length]);
 
-  // Scroll is hot in paged mode; gate it behind a rAF so at most one
-  // proximity check (and page load) happens per frame.
   const scrollRaf = useRef(0);
   const handleScroll = useCallback(() => {
     if (mode !== "paged" || pagingMore) return;
@@ -580,7 +316,7 @@ export function OrdersDataGrid() {
         header: t("dashboard.date"),
         size: 130,
         cell: ({ getValue }) => (
-          <span className="whitespace-nowrap text-slate-700 dark:text-slate-400">
+          <span className="whitespace-nowrap text-slate-700 dark:text-slate-300">
             {new Date(getValue()).toLocaleDateString()}
           </span>
         ),
@@ -599,8 +335,6 @@ export function OrdersDataGrid() {
     [t, formatMoney],
   );
 
-  // React Compiler can't memoize TanStack Table's returned functions, but the
-  // hook manages its own state/effects — the component is fine without memo.
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: gridData,
@@ -614,14 +348,6 @@ export function OrdersDataGrid() {
     getSortedRowModel: getSortedRowModel(),
   });
 
-  // The virtualized rows are absolutely positioned, so fixed px column widths
-  // never stretch to fill the container on their own. Pick the first visible
-  // non-pinned column as a flexible one and let it absorb any slack:
-  //   overflow = max(containerWidth - sumOfAllColumnWidths, 0)
-  //   flexWidth = flexColumnBaseWidth + overflow
-  //   table min-width = max(sumOfAllColumnWidths, containerWidth)
-  // Because the flex column is `relative`/stretch-free, its header and cells
-  // both need this explicit computed width rather than the fixed `size`.
   const flexCol = table
     .getAllLeafColumns()
     .find((c) => c.getIsVisible() && !c.getIsPinned());
@@ -632,11 +358,6 @@ export function OrdersDataGrid() {
   const flexWidth = flexCol ? flexSize + overflow : flexSize;
   const totalWidth = Math.max(sumFixed, containerWidth);
 
-  // Stable identity keys for the memoized rows: change only when the visible
-  // column set or any width actually changes.
-  const colVisibilityKey = JSON.stringify(columnVisibility);
-  const sizingKey = JSON.stringify(columnSizing);
-
   const rowModel = table.getRowModel().rows;
   const getScrollElement = useCallback(() => scrollRef.current, []);
   const estimateSize = useCallback(() => ROW_HEIGHT, []);
@@ -644,13 +365,9 @@ export function OrdersDataGrid() {
     count: rowModel.length,
     getScrollElement,
     estimateSize,
-    // 6 rows of overscan (~288px) is enough to pre-render past the viewport;
-    // 12 previously mounted ~576px of off-screen rows.
     overscan: 6,
   });
 
-  // Ref mirrors of render-time values so the keyboard handler stays referentially
-  // stable (the memoized rows depend on it) without reading stale closures.
   const activeIndexRef = useRef(activeIndex);
   activeIndexRef.current = activeIndex;
   const rowModelLenRef = useRef(rowModel.length);
@@ -682,8 +399,6 @@ export function OrdersDataGrid() {
       }
       setActiveRow(clamped);
       virtualizer.scrollToIndex(clamped, { align: "auto" });
-      // The virtualized row isn't in the DOM until the virtualizer has laid out
-      // the target offset; retry across animation frames (max ~40) until it is.
       let tries = 0;
       const retry = () => {
         if (tries++ >= 40) return;
@@ -733,10 +448,6 @@ export function OrdersDataGrid() {
     [goTo],
   );
 
-  // CSV export round-trips through the shared worker, which renders the CSV
-  // from its own copy of the data — no rows cross postMessage. The response is
-  // matched by request id, guarded by a fail-safe timeout, and cleaned up on
-  // unmount so `exporting` can never stay wedged.
   const exportStateRef = useRef<{
     timer: number | null;
     worker: Worker | null;
@@ -753,7 +464,7 @@ export function OrdersDataGrid() {
 
   const exportCsv = () => {
     const worker = workerRef.current;
-    if (!worker || exporting) return; // worker-gone or already exporting
+    if (!worker || exporting) return;
     setExporting(true);
     const reqId = Date.now();
     const onMessage = (e: MessageEvent<Outgoing>) => {
@@ -783,8 +494,6 @@ export function OrdersDataGrid() {
         reqId,
       });
       exportStateRef.current.timer = window.setTimeout(() => {
-        // Fail-safe: if the response never arrives (terminated worker, lost
-        // message), reset the state instead of disabling the button forever.
         worker.removeEventListener("message", onMessage);
         exportStateRef.current.onMessage = null;
         setExporting(false);
@@ -821,12 +530,8 @@ export function OrdersDataGrid() {
     setViewMenuOpen(false);
   };
 
-  // Read path mirrors the sanitizers used at load time: each field is
-  // validated per-field and falls back to a safe default, so a hand-edited or
-  // older stored view can never hand the `<select>`s an invalid value (which
-  // would render as a blank option with a stale saved view name in the list).
-  const loadView = () => {
-    const view = views.find((v) => v.name === selectedView);
+  const loadView = (viewName: string) => {
+    const view = views.find((v) => v.name === viewName);
     if (!view) return;
     setSearch(view.search ?? "");
     setStatus(isAllowedStatus(view.status) ? view.status : ALL);
@@ -849,23 +554,36 @@ export function OrdersDataGrid() {
 
   return (
     <div className="space-y-4">
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex shrink-0 flex-wrap items-center gap-2">
         <label className="relative min-w-52 flex-1">
-          <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" />
+          <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600 dark:text-slate-400" />
           <input
+            ref={searchInputRef}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder={t("grid.search")}
-            className="w-full rounded-xl border-0 bg-white py-2 ps-9 pe-3 text-sm text-slate-900 shadow-sm ring-1 ring-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-slate-100 dark:ring-slate-800"
+            placeholder={`${t("grid.search")} (⌘K)`}
+            className="w-full rounded-xl border-0 bg-white py-2 ps-9 pe-9 text-sm text-slate-900 shadow-sm ring-1 ring-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-slate-100 dark:ring-slate-700 dark:placeholder:text-slate-500"
           />
+          {search && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearch("");
+                searchInputRef.current?.focus();
+              }}
+              aria-label={t("grid.clearSearch")}
+              className="absolute end-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
+            >
+              ✕
+            </button>
+          )}
         </label>
 
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value as OrderStatus | typeof ALL)}
           aria-label={t("grid.statusAll")}
-          className="rounded-xl border-0 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm ring-1 ring-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-slate-200 dark:ring-slate-800"
+          className="rounded-xl border-0 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm ring-1 ring-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-slate-200 dark:ring-slate-700"
         >
           <option value={ALL}>{t("grid.statusAll")}</option>
           {ORDER_STATUSES.map((s) => (
@@ -879,7 +597,7 @@ export function OrdersDataGrid() {
           value={region}
           onChange={(e) => setRegion(e.target.value as Region | typeof ALL)}
           aria-label={t("grid.regionAll")}
-          className="rounded-xl border-0 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm ring-1 ring-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-slate-200 dark:ring-slate-800"
+          className="rounded-xl border-0 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm ring-1 ring-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-900 dark:text-slate-200 dark:ring-slate-700"
         >
           <option value={ALL}>{t("grid.regionAll")}</option>
           {ORDER_REGIONS.map((r) => (
@@ -892,7 +610,7 @@ export function OrdersDataGrid() {
         <div
           role="group"
           aria-label={t("grid.modeLabel")}
-          className="inline-flex rounded-xl bg-white p-0.5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800"
+          className="inline-flex rounded-xl bg-white p-0.5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
         >
           {(["virtual", "paged"] as const).map((m) => (
             <button
@@ -919,7 +637,7 @@ export function OrdersDataGrid() {
             onClick={() => setColumnsOpen((open) => !open)}
             aria-haspopup="true"
             aria-expanded={columnsOpen}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200 transition-colors hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-200 dark:ring-slate-800 dark:hover:bg-slate-800"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200 transition-colors hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-800"
           >
             <Columns3 className="h-4 w-4" />
             {t("grid.columns")}
@@ -928,10 +646,10 @@ export function OrdersDataGrid() {
             <div
               ref={columnsMenuRef}
               role="menu"
-              className="absolute end-0 z-40 mt-2 w-64 rounded-xl bg-white p-3 shadow-lg ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800"
+              className="absolute end-0 z-40 mt-2 w-64 rounded-xl bg-white p-3 shadow-lg ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
             >
               <div className="mb-1 flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-700 dark:text-slate-400">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-700 dark:text-slate-300">
                   {t("grid.columns")}
                 </p>
                 <button
@@ -994,7 +712,7 @@ export function OrdersDataGrid() {
             onClick={() => setViewMenuOpen((open) => !open)}
             aria-haspopup="true"
             aria-expanded={viewMenuOpen}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200 transition-colors hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-200 dark:ring-slate-800 dark:hover:bg-slate-800"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200 transition-colors hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-800"
           >
             <Save className="h-4 w-4" />
             {t("grid.saveView")}
@@ -1003,7 +721,7 @@ export function OrdersDataGrid() {
             <div
               ref={viewsMenuRef}
               role="menu"
-              className="absolute end-0 z-40 mt-2 w-64 rounded-xl bg-white p-3 shadow-lg ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800"
+              className="absolute end-0 z-40 mt-2 w-64 rounded-xl bg-white p-3 shadow-lg ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
             >
               <div className="flex gap-2">
                 <input
@@ -1022,11 +740,11 @@ export function OrdersDataGrid() {
                 </button>
               </div>
               <div className="mt-3 border-t border-slate-100 pt-3 dark:border-slate-800">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-700 dark:text-slate-400">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-700 dark:text-slate-300">
                   {t("grid.savedViews")}
                 </p>
                 {views.length === 0 ? (
-                  <p className="text-xs text-slate-600 dark:text-slate-400">{t("grid.noSavedViews")}</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">{t("grid.noSavedViews")}</p>
                 ) : (
                   <div className="space-y-1">
                     {views.map((view) => (
@@ -1045,7 +763,7 @@ export function OrdersDataGrid() {
                           type="button"
                           onClick={() => {
                             setSelectedView(view.name);
-                            loadView();
+                            loadView(view.name);
                           }}
                           className="shrink-0 cursor-pointer text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400"
                         >
@@ -1054,11 +772,13 @@ export function OrdersDataGrid() {
                         <button
                           type="button"
                           onClick={() => {
-                            setSelectedView(view.name);
-                            deleteView();
+                            if (window.confirm(t("grid.confirmDeleteView"))) {
+                              setSelectedView(view.name);
+                              deleteView();
+                            }
                           }}
                           aria-label={t("grid.deleteView")}
-                          className="shrink-0 cursor-pointer text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400"
+                          className="shrink-0 cursor-pointer text-slate-600 hover:text-red-600 dark:text-slate-300 dark:hover:text-red-400"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
@@ -1072,7 +792,7 @@ export function OrdersDataGrid() {
         </div>
       </div>
 
-      <p className="text-sm text-slate-700 dark:text-slate-400">
+      <p className="shrink-0 text-sm text-slate-700 dark:text-slate-300">
         {t("grid.showing")}{" "}
         <span className="font-semibold text-slate-700 dark:text-slate-200">
           {displayRows.length.toLocaleString()}
@@ -1086,8 +806,7 @@ export function OrdersDataGrid() {
           ` · ${formatMoney(aggregation.totalRevenue)}`}
       </p>
 
-      {/* Web Worker aggregation strip */}
-      <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+      <div className="shrink-0 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200">
             <LayoutGrid className="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -1096,7 +815,7 @@ export function OrdersDataGrid() {
               className={cn(
                 "rounded-full px-2 py-0.5 text-[11px] font-semibold",
                 displayRows === rows
-                  ? "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                  ? "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
                   : "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-300",
               )}
             >
@@ -1105,7 +824,7 @@ export function OrdersDataGrid() {
                 : `${t("grid.aggregateScopeFiltered")} · ${displayRows.length.toLocaleString()}`}
             </span>
           </p>
-          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
             {aggregationError ? (
               <span role="alert" className="font-semibold text-red-600 dark:text-red-400">
                 {t("grid.aggregateError")}
@@ -1153,18 +872,17 @@ export function OrdersDataGrid() {
             }
           />
         </div>
-        <p className="mt-3 text-xs text-slate-600 dark:text-slate-400">
+        <p className="mt-3 text-xs text-slate-600 dark:text-slate-300">
           {t("grid.aggregateHint")}
         </p>
       </div>
 
-      {/* Virtualized table */}
       <div
         ref={scrollRef}
         data-testid="grid-scroll"
         onScroll={handleScroll}
-        className="overflow-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800"
-        style={{ height: VIEWPORT_HEIGHT }}
+        className="min-h-0 flex-1 overflow-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+        style={{ height: "min(560px, calc(100dvh - 280px))" }}
       >
         <span className="sr-only">{t("grid.kbdHint")}</span>
         <table
@@ -1196,7 +914,7 @@ export function OrdersDataGrid() {
                       }
                       tabIndex={header.column.getCanSort() ? 0 : undefined}
                       className={cn(
-                        "sticky top-0 z-20 border-b border-slate-100 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:bg-slate-800/95 dark:text-slate-400",
+                        "sticky top-0 z-20 border-b border-slate-100 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:bg-slate-800/95 dark:text-slate-300",
                         pinned === "left" && "z-30 start-0",
                         pinned === "right" && "z-30 end-0",
                         header.column.getCanSort() &&
@@ -1289,8 +1007,6 @@ export function OrdersDataGrid() {
                 index={virtualRow.index}
                 start={virtualRow.start}
                 isActive={virtualRow.index === activeIndex}
-                colVisibilityKey={colVisibilityKey}
-                sizingKey={sizingKey}
                 flexId={flexId}
                 flexWidth={flexWidth}
                 onKeyDown={handleRowKeyDown}
@@ -1301,7 +1017,7 @@ export function OrdersDataGrid() {
           </tbody>
         </table>
         {rowModel.length === 0 && (
-          <div className="flex h-32 items-center justify-center text-sm text-slate-600 dark:text-slate-400">
+          <div className="flex h-32 items-center justify-center text-sm text-slate-600 dark:text-slate-300">
             {t("grid.noResults")}
           </div>
         )}
@@ -1331,40 +1047,3 @@ export function OrdersDataGrid() {
     </div>
   );
 }
-
-function AggCard({
-  label,
-  value,
-  sub,
-  loading,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-  loading: boolean;
-}) {
-  return (
-    <div className="rounded-xl bg-slate-50 px-3 py-2.5 ring-1 ring-slate-100 dark:bg-slate-800/50 dark:ring-slate-800">
-      <p className="text-xs text-slate-600 dark:text-slate-400">{label}</p>
-      <p
-        className={cn(
-          "mt-0.5 truncate text-base font-bold text-slate-900 dark:text-slate-100",
-          // Pulsing placeholder needs WCAG AA contrast against slate-50.
-          // slate-600 on slate-50 ≈ 5.7:1 (clears 4.5:1); the pulse alone
-          // signals the loading state, so the text must also be readable.
-          loading && "animate-pulse text-slate-600 dark:text-slate-300",
-        )}
-      >
-        {value}
-      </p>
-      {sub && (
-        <p className="mt-0.5 truncate text-[11px] text-slate-600 dark:text-slate-400">
-          {sub}
-        </p>
-      )}
-    </div>
-  );
-}
-
-
-

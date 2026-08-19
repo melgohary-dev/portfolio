@@ -2,6 +2,7 @@ import type { StatsResponse } from '@saas/shared';
 import { apiFetch } from '@/lib/api';
 import { getLocale, getT } from '@/lib/server-i18n';
 import { formatMoney, formatNumber } from '@/lib/format';
+import { Kpi } from '@/components/kpi';
 
 export default async function DashboardPage() {
   const stats = await apiFetch<StatsResponse>('stats');
@@ -56,15 +57,6 @@ export default async function DashboardPage() {
           </div>
         </section>
       </div>
-    </div>
-  );
-}
-
-function Kpi({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg border p-4">
-      <p className="text-sm text-gray-600">{label}</p>
-      <p className="mt-1 text-2xl font-semibold">{value}</p>
     </div>
   );
 }

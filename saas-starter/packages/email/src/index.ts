@@ -10,6 +10,19 @@ export type EmailMessage = {
 
 export type SendEmailResult = { id: string };
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function escapeAttribute(str: string): string {
+  return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 function devPrint(message: EmailMessage): void {
   console.log(
     `[email:dev] to=${message.to} subject=${message.subject}${message.html ? ' (html)' : ''}`,
@@ -38,6 +51,8 @@ export async function sendEmail(message: EmailMessage): Promise<SendEmailResult>
 }
 
 export function renderResetPasswordEmail(opts: { name?: string; resetUrl: string }) {
+  const safeName = opts.name ? escapeHtml(opts.name) : '';
+  const safeUrl = escapeAttribute(opts.resetUrl);
   const text = [
     `Hi${opts.name ? ` ${opts.name}` : ''},`,
     '',
@@ -50,10 +65,10 @@ export function renderResetPasswordEmail(opts: { name?: string; resetUrl: string
   ].join('\n');
   const html = [
     '<div style="font-family:sans-serif;line-height:1.5">',
-    `<p>Hi${opts.name ? ` ${opts.name}` : ''},</p>`,
+    `<p>Hi${safeName ? ` ${safeName}` : ''},</p>`,
     '<p>You asked to reset your password for SaaS Starter.</p>',
     '<p>Click the link below to choose a new one. It expires in 30 minutes.</p>',
-    `<p><a href="${opts.resetUrl}">Reset my password</a></p>`,
+    `<p><a href="${safeUrl}">Reset my password</a></p>`,
     '<p>If you did not request this, you can safely ignore this email.</p>',
     '</div>',
   ].join('');

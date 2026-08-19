@@ -74,13 +74,16 @@ pnpm --filter @saas/db db:seed        # demo org, users, sample orders
 pnpm dev                              # web → :3000, api → :4000
 ```
 
-Seed accounts (all password `Password123!`):
+Seed accounts (random passwords printed to console after seeding):
 
 | Email | Org | Plan |
 |-------|-----|------|
 | `owner@acme.test` | Acme | Free |
 | `admin@acme.test` | Acme | Free |
 | `owner@globex.test` | Globex | Pro |
+
+> **Tip:** Run `SEED_PASSWORD=your-password pnpm seed` for a fixed password
+> during development or E2E tests.
 
 Open http://localhost:3000, sign in, then use the app switcher to open the
 SaaS dashboard.
