@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   cancelMockSubscriptionAction,
   createCheckoutAction,
@@ -20,6 +21,7 @@ export function BillingSettings({
 }) {
   const currentPlan = subscription?.plan ?? 'free';
   const { t } = useI18n();
+  const [confirmingCancel, setConfirmingCancel] = useState(false);
 
   return (
     <div className="space-y-5">
@@ -33,7 +35,7 @@ export function BillingSettings({
               ({t(statusKey(subscription.status))})
             </p>
           ) : null}
-          {subscription?.currentPeriodEnd ? (
+          {subscription?.currentPeriodEnd && !isNaN(Date.parse(subscription.currentPeriodEnd)) ? (
             <p className="text-xs text-gray-600">
               {t('billing.renews', {
                 date: new Date(subscription.currentPeriodEnd).toLocaleDateString(),
@@ -52,14 +54,34 @@ export function BillingSettings({
               </button>
             </form>
             {mode === 'mock' ? (
-              <form action={cancelMockSubscriptionAction}>
+              confirmingCancel ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-red-600">{t('billing.confirmCancel')}</span>
+                  <form action={cancelMockSubscriptionAction}>
+                    <button
+                      type="submit"
+                      className="rounded-md border border-red-600 bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
+                    >
+                      {t('billing.yesCancel')}
+                    </button>
+                  </form>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmingCancel(false)}
+                    className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
+                  >
+                    {t('billing.noKeep')}
+                  </button>
+                </div>
+              ) : (
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={() => setConfirmingCancel(true)}
                   className="rounded-md border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
                 >
                   {t('billing.cancelPlan')}
                 </button>
-              </form>
+              )
             ) : null}
           </div>
         ) : null}

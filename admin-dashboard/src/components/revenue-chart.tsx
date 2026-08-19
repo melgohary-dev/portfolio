@@ -13,7 +13,7 @@ import {
 import type { RevenuePoint } from "@/lib/data";
 import { useSettings } from "@/components/settings-provider";
 import { formatNumber } from "@/lib/utils";
-import { useMounted } from "@/lib/use-mounted";
+import { useMounted } from "@/hooks/use-mounted";
 
 export function RevenueChart({
   data,

@@ -97,6 +97,9 @@ const en = {
   billing: {
     manage: 'Manage billing',
     cancelPlan: 'Cancel plan',
+    confirmCancel: 'Are you sure?',
+    yesCancel: 'Yes, cancel',
+    noKeep: 'Keep plan',
     current: 'Current',
     perMonth: '/month',
     upgradeTo: 'Upgrade to {plan}',
@@ -283,6 +286,9 @@ const ar: typeof en = {
   billing: {
     manage: 'إدارة الفوترة',
     cancelPlan: 'إلغاء الخطة',
+    confirmCancel: 'هل أنت متأكد؟',
+    yesCancel: 'نعم، إلغاء',
+    noKeep: 'الاحتفاظ بالخطة',
     current: 'الحالية',
     perMonth: '/شهر',
     upgradeTo: 'الترقية إلى {plan}',

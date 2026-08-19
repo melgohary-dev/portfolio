@@ -6,7 +6,8 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@saas/auth": "workspace:*",
@@ -30,6 +31,7 @@
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^10.1.0",
     "typescript": "^5.9.0",
-    "typescript-eslint": "^8.67.0"
+    "typescript-eslint": "^8.67.0",
+    "vitest": "^4.1.10"
   }
 }

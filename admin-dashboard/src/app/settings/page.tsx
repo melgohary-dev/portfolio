@@ -62,7 +62,7 @@ function Card({
   return (
     <div
       className={cn(
-        "animate-slide-up rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800",
+        "animate-slide-up rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700",
         className,
       )}
       style={delay ? { animationDelay: `${delay}ms` } : undefined}
@@ -88,7 +88,7 @@ function SectionHeader({
       </div>
       <div>
         <h2 className="font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
-        <p className="text-xs text-slate-600 dark:text-slate-400">{subtitle}</p>
+        <p className="text-xs text-slate-600 dark:text-slate-300">{subtitle}</p>
       </div>
     </div>
   );
@@ -143,7 +143,7 @@ function Segmented<T extends string>({
             "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
             value === option.value
               ? "bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-slate-50"
-              : "text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200",
+              : "text-slate-600 hover:text-slate-800 dark:text-slate-300 dark:hover:text-slate-200",
           )}
         >
           {option.icon}
@@ -191,7 +191,7 @@ export default function SettingsPage() {
         <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
           {t("settings.title")}
         </h1>
-        <p className="text-sm text-slate-700 dark:text-slate-400">
+        <p className="text-sm text-slate-700 dark:text-slate-300">
           {t("settings.subtitle")}
         </p>
       </div>
@@ -256,7 +256,7 @@ export default function SettingsPage() {
               { value: "collapsed", label: t("settings.sidebarCollapsed"), icon: <PanelLeftClose className="h-3.5 w-3.5" /> },
             ]}
           />
-          <p className="mt-3 text-xs text-slate-600 dark:text-slate-400">
+          <p className="mt-3 text-xs text-slate-600 dark:text-slate-300">
             {settings.sidebarCollapsed
               ? t("settings.sidebarCollapsedDesc")
               : t("settings.sidebarExpandedDesc")}
@@ -331,7 +331,7 @@ export default function SettingsPage() {
               <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
                 {t("settings.emailNotifications")}
               </p>
-              <p className="text-xs text-slate-600 dark:text-slate-400">
+              <p className="text-xs text-slate-600 dark:text-slate-300">
                 {t("settings.emailNotificationsSub")}
               </p>
             </div>

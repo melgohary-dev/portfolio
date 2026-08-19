@@ -83,7 +83,7 @@ export function Sidebar({
       aria-label={dialogMode ? t("aria.mobileNav") : undefined}
       tabIndex={dialogMode ? -1 : undefined}
       className={cn(
-        "fixed inset-y-0 start-0 z-50 flex h-screen w-60 shrink-0 flex-col border-e border-slate-200 bg-white transition-[transform,width] duration-200 lg:sticky lg:top-0 lg:z-10 lg:translate-x-0 dark:border-slate-800 dark:bg-slate-900 focus:outline-none",
+        "fixed inset-y-0 start-0 z-50 flex h-screen w-60 shrink-0 flex-col border-e border-slate-200 bg-white transition-[transform,width] duration-200 lg:translate-x-0 dark:border-slate-800 dark:bg-slate-900 focus:outline-none",
         collapsed && "lg:w-20",
         mobileOpen ? "max-lg:translate-x-0" : hiddenTransform,
       )}

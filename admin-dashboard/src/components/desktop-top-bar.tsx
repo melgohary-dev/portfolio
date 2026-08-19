@@ -34,8 +34,8 @@ export function DesktopTopBar() {
       <span className="h-6 w-px bg-slate-200 dark:bg-slate-800" aria-hidden="true" />
 
       <div className="ms-auto flex items-center gap-1">
-        <ThemeToggle compact />
-        <LanguageToggle compact />
+        <ThemeToggle compact tipPlacement="below" />
+        <LanguageToggle compact tipPlacement="below" />
       </div>
     </header>
   );

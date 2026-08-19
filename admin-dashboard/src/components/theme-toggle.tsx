@@ -13,7 +13,7 @@ export function ThemeToggle({
   compact?: boolean;
   className?: string;
   showTooltip?: boolean;
-  tipPlacement?: "side" | "above";
+  tipPlacement?: "side" | "above" | "below";
 }) {
   const { settings, setTheme, t } = useSettings();
   const Icon =
@@ -36,11 +36,12 @@ export function ThemeToggle({
         "inline-flex items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100",
         showTooltip && "tip",
         showTooltip && tipPlacement === "above" && "tip-above",
+        showTooltip && tipPlacement === "below" && "tip-below",
         compact ? "h-9 w-9" : "gap-2 px-2.5 py-2",
         className,
       )}
     >
-      <Icon className="h-4 w-4" />
+      <Icon className="h-4 w-4" suppressHydrationWarning />
       {!compact && <span className="text-xs font-medium">{t("settings.themeLabel")}</span>}
     </button>
   );

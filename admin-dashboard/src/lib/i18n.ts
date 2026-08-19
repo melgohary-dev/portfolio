@@ -66,6 +66,7 @@ const en = {
   },
   grid: {
     search: "Search orders…",
+    clearSearch: "Clear search",
     statusAll: "All statuses",
     regionAll: "All regions",
     region: "Region",
@@ -77,6 +78,7 @@ const en = {
     noSavedViews: "No saved views yet",
     loadView: "Load",
     deleteView: "Delete",
+    confirmDeleteView: "Are you sure you want to delete this saved view?",
     showing: "Showing",
     of: "of",
     resultCount: "{n} results",
@@ -219,6 +221,7 @@ const ar: typeof en = {
   },
   grid: {
     search: "ابحث في الطلبات…",
+    clearSearch: "مسح البحث",
     statusAll: "كل الحالات",
     regionAll: "كل المناطق",
     region: "المنطقة",
@@ -230,6 +233,7 @@ const ar: typeof en = {
     noSavedViews: "لا توجد عروض محفوظة بعد",
     loadView: "تحميل",
     deleteView: "حذف",
+    confirmDeleteView: "هل أنت متأكد أنك تريد حذف هذا العرض المحفوظ؟",
     showing: "عرض",
     of: "من",
     resultCount: "{n} نتيجة",

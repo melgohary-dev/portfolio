@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Aggregation, GridQuery, Incoming, Outgoing } from "./orders-worker";
+import type { Aggregation, GridQuery, Incoming, Outgoing } from "@/lib/orders-worker";
 
 export interface AggregationState {
   /** Result of the latest completed pass (stale responses are dropped). */
@@ -52,12 +52,9 @@ function notifyWorkerError() {
 function acquireWorker(): Worker {
   if (!sharedWorker) {
     sharedWorker = new Worker(
-      new URL("./orders-worker.ts", import.meta.url),
+      new URL("@/lib/orders-worker.ts", import.meta.url),
       { type: "module" },
     );
-    // Load/compile failures and undecodable messages surface here. Business
-    // errors (thrown inside a request handler) arrive as `action: "error"`
-    // envelopes on the message channel instead.
     sharedWorker.onerror = () => notifyWorkerError();
     sharedWorker.onmessageerror = () => notifyWorkerError();
   }

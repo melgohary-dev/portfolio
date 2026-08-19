@@ -47,7 +47,7 @@ function ShellInner({
       { href: '/app/analytics', label: t('nav.analytics') },
       { href: '/app/settings', label: t('nav.settings') },
     ],
-    [t, pathname],
+    [t],
   );
 
   async function onOrgChange(value: string) {
@@ -57,7 +57,7 @@ function ShellInner({
 
   return (
     <div className="flex min-h-screen">
-      <nav className="flex w-60 shrink-0 flex-col gap-6 border-s p-4">
+      <nav aria-label="Main navigation" className="flex w-60 shrink-0 flex-col gap-6 border-s p-4">
         <div>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wide text-gray-400">

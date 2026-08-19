@@ -13,3 +13,7 @@ coverage/
 
 # Local planning notes (not published)
 planning/
+
+# Playwright
+test-results/
+playwright-report/

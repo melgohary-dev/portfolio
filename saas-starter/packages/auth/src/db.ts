@@ -56,15 +56,24 @@ export async function createOrganization(opts: { userId: string; name: string })
   const base = slugify(opts.name);
   let slug = base;
   let organization;
-  // Pre-checking the slug is only a hint: two concurrent sign-ups can both see
-  // the same free slug, so the unique constraint is the real guard. On a
-  // unique-violation (23505) we re-roll to `${base}-N` and retry.
   for (let attempt = 1; attempt <= 5; attempt += 1) {
     try {
-      [organization] = await db
-        .insert(organizations)
-        .values({ name: opts.name, slug })
-        .returning();
+      [organization] = await db.transaction(async (tx) => {
+        const [org] = await tx
+          .insert(organizations)
+          .values({ name: opts.name, slug })
+          .returning();
+        if (!org) throw new Error('Failed to create organization');
+        await tx.insert(organizationMembers).values({
+          organizationId: org.id,
+          userId: opts.userId,
+          role: 'owner',
+        });
+        await tx
+          .insert(subscriptions)
+          .values({ tenantId: org.id, plan: 'free', status: 'active' });
+        return [org];
+      });
       break;
     } catch (err) {
       const isUniqueViolation = (err as { code?: string } | undefined)?.code === '23505';
@@ -77,14 +86,6 @@ export async function createOrganization(opts: { userId: string; name: string })
   if (!organization) {
     throw new Error('Failed to create organization');
   }
-  await db.insert(organizationMembers).values({
-    organizationId: organization.id,
-    userId: opts.userId,
-    role: 'owner',
-  });
-  await db
-    .insert(subscriptions)
-    .values({ tenantId: organization.id, plan: 'free', status: 'active' });
   return organization;
 }
 

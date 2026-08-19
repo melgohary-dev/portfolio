@@ -20,31 +20,28 @@ import {
 export type Theme = "light" | "dark" | "system";
 export type Currency = "SAR" | "USD" | "EGP";
 
-export interface Settings {
+const STORAGE_KEY = "admin-dashboard:settings";
+
+interface StoredSettings {
   locale: Locale;
   theme: Theme;
   sidebarCollapsed: boolean;
   currency: Currency;
 }
 
-// Persisted settings schema. The shape is `Settings` (below); unknown fields
-// are tolerated on read, known fields are validated and fall back to defaults,
-// so a stale/corrupt value can never crash the app. Unversioned by design: the
-// reader is the schema and is forward-compatible.
-const STORAGE_KEY = "admin-dashboard:settings";
-const DEFAULTS: Settings = {
+const DEFAULTS: StoredSettings = {
   locale: "en",
   theme: "system",
   sidebarCollapsed: false,
   currency: "SAR",
 };
 
-function readSettings(): Settings {
+function readSettings(): StoredSettings {
   if (typeof window === "undefined") return DEFAULTS;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULTS;
-    const parsed = { ...DEFAULTS, ...JSON.parse(raw) } as Settings;
+    const parsed = { ...DEFAULTS, ...JSON.parse(raw) } as StoredSettings;
     if (parsed.theme !== "light" && parsed.theme !== "dark" && parsed.theme !== "system") {
       parsed.theme = "system";
     }
@@ -70,28 +67,47 @@ function readMediaDark(): boolean {
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
-interface SettingsContextValue {
-  settings: Settings;
+// --- Theme context ---
+interface ThemeContextValue {
+  theme: Theme;
   isDark: boolean;
+  setTheme: (theme: Theme) => void;
+}
+
+const ThemeContext = createContext<ThemeContextValue | null>(null);
+
+// --- Locale context ---
+interface LocaleContextValue {
   locale: Locale;
   t: (key: NestedKeyOf<Messages>) => string;
-  formatMoney: (value: number) => string;
   setLocale: (locale: Locale) => void;
-  setTheme: (theme: Theme) => void;
+}
+
+const LocaleContext = createContext<LocaleContextValue | null>(null);
+
+// --- Currency context ---
+interface CurrencyContextValue {
+  currency: Currency;
+  formatMoney: (value: number) => string;
   setCurrency: (currency: Currency) => void;
+}
+
+const CurrencyContext = createContext<CurrencyContextValue | null>(null);
+
+// --- Sidebar context ---
+interface SidebarContextValue {
+  sidebarCollapsed: boolean;
   toggleSidebar: () => void;
 }
 
-const SettingsContext = createContext<SettingsContextValue | null>(null);
+const SidebarContext = createContext<SidebarContextValue | null>(null);
 
 export function SettingsProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [settings, setSettings] = useState<Settings>(() => readSettings());
-  // `useSyncExternalStore` so the "system" theme resolves outside React's
-  // render cycle and reacts to OS changes without a manual listener effect.
+  const [settings, setSettings] = useState<StoredSettings>(() => readSettings());
   const systemDark = useSyncExternalStore(
     subscribeMedia,
     readMediaDark,
@@ -104,10 +120,6 @@ export function SettingsProvider({
         ? false
         : systemDark;
 
-  // Applying theme/lang/dir on the <html> element mirrors the inline
-  // `THEME_INIT_SCRIPT` in `layout.tsx`. The script runs before hydration to
-  // prevent a flash of the wrong theme (FOUC); this effect keeps the DOM in
-  // sync after a settings change. Keep both in lockstep when adding fields.
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
@@ -121,9 +133,26 @@ export function SettingsProvider({
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
     } catch {
-      // storage unavailable — ignore
+      // storage unavailable
     }
   }, [settings]);
+
+  const setTheme = useCallback(
+    (theme: Theme) => setSettings((s) => ({ ...s, theme })),
+    [],
+  );
+  const setLocale = useCallback(
+    (locale: Locale) => setSettings((s) => ({ ...s, locale })),
+    [],
+  );
+  const setCurrency = useCallback(
+    (currency: Currency) => setSettings((s) => ({ ...s, currency })),
+    [],
+  );
+  const toggleSidebar = useCallback(
+    () => setSettings((s) => ({ ...s, sidebarCollapsed: !s.sidebarCollapsed })),
+    [],
+  );
 
   const t = useCallback(
     (key: NestedKeyOf<Messages>) =>
@@ -133,9 +162,6 @@ export function SettingsProvider({
     [settings.locale],
   );
 
-  // One `Intl.NumberFormat` per currency, reused across the grid's total
-  // column (called per visible row per render). Constructing a fresh instance
-  // per call is surprisingly expensive and allocates on every grid render.
   const moneyFormatter = useMemo(
     () =>
       new Intl.NumberFormat("en-US", {
@@ -151,58 +177,92 @@ export function SettingsProvider({
     [moneyFormatter],
   );
 
-  const setLocale = useCallback(
-    (locale: Locale) => setSettings((s) => ({ ...s, locale })),
-    [],
-  );
-  const setTheme = useCallback(
-    (theme: Theme) => setSettings((s) => ({ ...s, theme })),
-    [],
-  );
-  const setCurrency = useCallback(
-    (currency: Currency) => setSettings((s) => ({ ...s, currency })),
-    [],
-  );
-  const toggleSidebar = useCallback(
-    () => setSettings((s) => ({ ...s, sidebarCollapsed: !s.sidebarCollapsed })),
-    [],
+  const themeValue = useMemo<ThemeContextValue>(
+    () => ({ theme: settings.theme, isDark, setTheme }),
+    [settings.theme, isDark, setTheme],
   );
 
-  const value = useMemo<SettingsContextValue>(
-    () => ({
-      settings,
-      isDark,
-      locale: settings.locale,
-      t,
-      formatMoney,
-      setLocale,
-      setTheme,
-      setCurrency,
-      toggleSidebar,
-    }),
-    [
-      settings,
-      isDark,
-      t,
-      formatMoney,
-      setLocale,
-      setTheme,
-      setCurrency,
-      toggleSidebar,
-    ],
+  const localeValue = useMemo<LocaleContextValue>(
+    () => ({ locale: settings.locale, t, setLocale }),
+    [settings.locale, t, setLocale],
+  );
+
+  const currencyValue = useMemo<CurrencyContextValue>(
+    () => ({ currency: settings.currency, formatMoney, setCurrency }),
+    [settings.currency, formatMoney, setCurrency],
+  );
+
+  const sidebarValue = useMemo<SidebarContextValue>(
+    () => ({ sidebarCollapsed: settings.sidebarCollapsed, toggleSidebar }),
+    [settings.sidebarCollapsed, toggleSidebar],
   );
 
   return (
-    <SettingsContext.Provider value={value}>
-      {children}
-    </SettingsContext.Provider>
+    <ThemeContext.Provider value={themeValue}>
+      <LocaleContext.Provider value={localeValue}>
+        <CurrencyContext.Provider value={currencyValue}>
+          <SidebarContext.Provider value={sidebarValue}>
+            {children}
+          </SidebarContext.Provider>
+        </CurrencyContext.Provider>
+      </LocaleContext.Provider>
+    </ThemeContext.Provider>
   );
 }
 
-export function useSettings(): SettingsContextValue {
-  const ctx = useContext(SettingsContext);
-  if (!ctx) {
-    throw new Error("useSettings must be used within a SettingsProvider");
-  }
+export function useTheme(): ThemeContextValue {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error("useTheme must be used within a SettingsProvider");
   return ctx;
+}
+
+export function useLocale(): LocaleContextValue {
+  const ctx = useContext(LocaleContext);
+  if (!ctx) throw new Error("useLocale must be used within a SettingsProvider");
+  return ctx;
+}
+
+export function useCurrency(): CurrencyContextValue {
+  const ctx = useContext(CurrencyContext);
+  if (!ctx) throw new Error("useCurrency must be used within a SettingsProvider");
+  return ctx;
+}
+
+export function useSidebar(): SidebarContextValue {
+  const ctx = useContext(SidebarContext);
+  if (!ctx) throw new Error("useSidebar must be used within a SettingsProvider");
+  return ctx;
+}
+
+export function useSettings() {
+  const theme = useTheme();
+  const locale = useLocale();
+  const currency = useCurrency();
+  const sidebar = useSidebar();
+  return useMemo(
+    () => ({
+      settings: {
+        locale: locale.locale,
+        theme: theme.theme,
+        sidebarCollapsed: sidebar.sidebarCollapsed,
+        currency: currency.currency,
+      },
+      isDark: theme.isDark,
+      locale: locale.locale,
+      t: locale.t,
+      formatMoney: currency.formatMoney,
+      setLocale: locale.setLocale,
+      setTheme: theme.setTheme,
+      setCurrency: currency.setCurrency,
+      toggleSidebar: sidebar.toggleSidebar,
+    }),
+    [theme, locale, currency, sidebar],
+  );
+}
+
+export interface Settings {
+  locale: Locale;
+  theme: Theme;
+  sidebarCollapsed: boolean;
+  currency: Currency;
 }

@@ -11,6 +11,7 @@ import { registerBilling } from './routes/billing.js';
 import { registerHealth } from './routes/health.js';
 import { registerOrders } from './routes/orders.js';
 import { registerStats } from './routes/stats.js';
+import { rateLimit } from './rate-limit.js';
 
 export function createApp(db: Database) {
   const app = new OpenAPIHono<AppEnv>({
@@ -51,13 +52,16 @@ export function createApp(db: Database) {
     }
   });
 
+  // Rate limit all API routes (except health).
+  app.use('/api/*', rateLimit({ windowMs: 60_000, max: 120 }));
+
   // Bearer-token auth for every /api route (see auth.ts for the trust model).
   app.use('*', authMiddleware);
 
   app.onError(errorHandler);
   app.notFound(notFoundHandler);
 
-  registerHealth(app);
+  registerHealth(app, db);
   registerBilling(app, db);
   registerOrders(app, db);
   registerStats(app, db);
@@ -82,9 +86,21 @@ export function createApp(db: Database) {
 }
 
 export function serve(port = Number(process.env.PORT ?? 4000)) {
-  const app = createApp(createDb(defaultDatabaseUrl()));
+  const db = createDb(defaultDatabaseUrl());
+  const app = createApp(db);
   const server = honoServe({ fetch: app.fetch, port });
   console.log(`SaaS API listening on http://localhost:${port}`);
+
+  const shutdown = () => {
+    console.log('Shutting down...');
+    server.close(() => {
+      process.exit(0);
+    });
+    setTimeout(() => process.exit(1), 5000);
+  };
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
+
   return server;
 }
 

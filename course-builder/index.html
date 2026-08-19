@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#6366f1" />
+    <meta
+      name="description"
+      content="Drag-and-drop course builder — build structured curricula with visual editing"
+    />
+    <title>Course Builder</title>
+    <script>
+      (function () {
+        try {
+          var saved = JSON.parse(
+            localStorage.getItem("course-builder:ui") || "null",
+          );
+          if (saved && saved.state && saved.state.darkMode) {
+            document.documentElement.classList.add("dark");
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

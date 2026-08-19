@@ -149,3 +149,17 @@ html.dark {
 [dir="rtl"] .tip-above::after {
   transform: translateX(50%);
 }
+
+/* Tooltip shown below the trigger (header toggles) */
+.tip-below::after {
+  top: auto;
+  bottom: auto;
+  top: calc(100% + 10px);
+  inset-inline-start: 50%;
+  inset-inline-end: auto;
+  transform: translateX(-50%);
+}
+
+[dir="rtl"] .tip-below::after {
+  transform: translateX(50%);
+}

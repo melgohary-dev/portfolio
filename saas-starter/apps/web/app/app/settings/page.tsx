@@ -4,7 +4,6 @@ import {
   getMemberships,
   getSubscription,
   listMembers,
-  resolveOrganizationId,
 } from '@saas/auth/db';
 import { apiFetch } from '@/lib/api';
 import { getT } from '@/lib/server-i18n';
@@ -24,14 +23,23 @@ export default async function SettingsPage({
   }
   const params = await searchParams;
   const t = await getT();
+
   const memberships = await getMemberships(session.user.id);
-  const orgId = await resolveOrganizationId(session.user.id, session.currentOrgId);
-  const currentOrg = memberships.find((m) => m.organizationId === orgId);
-  const members = orgId ? await listMembers(orgId) : [];
-  const subscription = orgId ? await getSubscription(orgId) : null;
-  const billing: BillingOverview | null = orgId
-    ? await apiFetch<BillingOverview>('billing').catch(() => null)
-    : null;
+  const preferred = session.currentOrgId;
+  const orgId =
+    preferred && memberships.some((m) => m.organizationId === preferred)
+      ? preferred
+      : memberships[0]?.organizationId ?? null;
+
+  const currentOrg = orgId ? memberships.find((m) => m.organizationId === orgId) : null;
+
+  const [members, subscription, billing] = await Promise.all([
+    orgId ? listMembers(orgId) : [],
+    orgId ? getSubscription(orgId) : null,
+    orgId
+      ? apiFetch<BillingOverview>('billing').catch(() => null)
+      : Promise.resolve(null),
+  ]);
 
   return (
     <div className="max-w-2xl space-y-8">

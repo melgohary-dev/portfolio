@@ -1,14 +1,12 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { auth } from '@saas/auth';
 import { apiFetch } from '@/lib/api';
 
 export async function createCheckoutAction(plan: 'free' | 'pro') {
-  const session = await auth();
   const result = await apiFetch<{ url: string }>('billing/checkout', {
     method: 'POST',
-    body: JSON.stringify({ plan, email: session?.user?.email ?? undefined }),
+    body: JSON.stringify({ plan }),
   });
   redirect(result.url);
 }

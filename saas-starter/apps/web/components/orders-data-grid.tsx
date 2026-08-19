@@ -198,18 +198,26 @@ export function OrdersDataGrid({
     overscan: 12,
   });
 
+  function sanitizeCsvCell(value: string): string {
+    const sanitized = value.replace(/"/g, '""');
+    if (/^[=+\-@\t\r]/.test(sanitized)) {
+      return `"${sanitized}"`;
+    }
+    return `"${sanitized}"`;
+  }
+
   function exportCsv() {
     const header = ['id', 'customer', 'email', 'status', 'createdAt', 'amountCents'];
     const lines = [
       header.join(','),
       ...filtered.map((o) =>
         [
-          o.id,
-          `"${o.customerName.replace(/"/g, '""')}"`,
-          o.customerEmail,
-          o.status,
-          o.createdAt,
-          o.amountCents,
+          sanitizeCsvCell(o.id),
+          sanitizeCsvCell(o.customerName),
+          sanitizeCsvCell(o.customerEmail),
+          sanitizeCsvCell(o.status),
+          sanitizeCsvCell(o.createdAt),
+          sanitizeCsvCell(String(o.amountCents)),
         ].join(','),
       ),
     ];
