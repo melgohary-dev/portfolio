@@ -98,7 +98,7 @@ certificate builder, preview mode, and auto-save to localStorage.
 
 ### [AI Chat Workspace](./ai-chat) — Realtime Multi-Provider AI Chat
 
-> **Lumofy** — Applies the AI-powered feature patterns from the LXP (recommendations, generated content)
+> **Skills demo** — Not tied to any client; a from-scratch showcase of LLM integration
 
 A from-scratch realtime AI chat with **bring-your-own-key** multi-provider
 support: Google Gemini, OpenAI, OpenRouter, Groq, Together AI, Mistral, and
