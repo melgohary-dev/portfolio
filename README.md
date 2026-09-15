@@ -1,11 +1,11 @@
 # Portfolio
 
-Four production-grade demo apps showcasing the full stack I delivered across
-**Qumra** (offline-first POS, admin dashboard, SaaS platform) and **Lumofy**
-(drag-and-drop course builder for a corporate learning experience platform).
+Five open-source **technical samples** demonstrating the architecture, patterns,
+and scale of production systems I've delivered across **Qumra**, **Lumofy**, and
+**Dexef**.
 
-Each project is a **clean-room reimplementation** of patterns I shipped in
-production. No client code, secrets, API endpoints, or branding.
+These are not the proprietary codebases — they are clean-room reimplementations
+that prove I can build them. No client code, secrets, API endpoints, or branding.
 
 ---
 
@@ -35,7 +35,7 @@ exponential backoff.
 
 ### [Admin Dashboard](./admin-dashboard) — Admin Back-Office
 
-> **Qumra** — Rebranded existing admin console for Mostadam
+> **Dexef** — Unified ERP suite for accounting, inventory, hospitality, and operations
 
 A Next.js admin console built around a **virtualized 120,000-row orders grid**.
 Scrolls, sorts, and filters smoothly. Aggregation runs on a background Web Worker
@@ -96,6 +96,31 @@ certificate builder, preview mode, and auto-save to localStorage.
 
 ---
 
+### [AI Chat Workspace](./ai-chat) — Realtime Multi-Provider AI Chat
+
+> **Lumofy** — Applies the AI-powered feature patterns from the LXP (recommendations, generated content)
+
+A from-scratch realtime AI chat with **bring-your-own-key** multi-provider
+support: Google Gemini, OpenAI, OpenRouter, Groq, Together AI, Mistral, and
+DeepSeek — with a free simulated default that needs no key, no signup, and no
+payment.
+
+- **Pluggable provider layer** — one `ProviderAdapter` interface; a shared SSE
+  parser drives every OpenAI-compatible endpoint while Gemini uses its native
+  REST streaming (`:streamGenerateContent`)
+- **BYOK key management** — env-var-first resolution with in-app paste-and-store
+  fallback (localStorage only, nothing bundled ever ships a secret)
+- **Streaming UX** — token-by-token rendering, auto-scroll + jump-to-latest,
+  stop with partial-content retention, retry on error
+- **Simulated fallback** — zero-setup offline mode streams deterministic demo
+  responses whenever a live provider has no key configured
+- Session management, sanitized markdown with code copy, dark/light, mobile drawer
+- 87 unit/integration tests behind an 80% coverage gate · 15 Playwright e2e scenarios
+
+**Stack:** React 19 · Vite 8 · TypeScript · Tailwind v4 · Zustand 5 · Vitest · Playwright
+
+---
+
 ## Production context
 
 ### [Qumra](https://www.linkedin.com/company/qumracloud) (Saudi retail/SaaS client — Mostadam)
@@ -104,10 +129,13 @@ certificate builder, preview mode, and auto-save to localStorage.
   Electron desktop with cross-platform installers (Win/macOS/Linux) via CI
 - **`@qumra/pos-core`** — shared data-access library (Web + Electron + React
   Native) covering ~85% of the app's data layer
-- **Admin dashboard** — 25+ modules (CRM, Billing, Governance, Marketing,
-  Analytics), rich-text editor, custom query builder
 - **Accounts + partner portal** — unified auth, dual-token GraphQL
 - Full **AR/EN localization and RTL** throughout
+
+### [Dexef](https://www.linkedin.com/company/dexef) (Unified ERP Suite)
+
+- **Admin dashboard** — 25+ modules (CRM, Billing, Governance, Marketing,
+  Analytics), rich-text editor, custom query builder
 
 ### [Lumofy](https://www.linkedin.com/company/lumofyinc) (Corporate Learning Experience Platform)
 
@@ -135,6 +163,9 @@ cd saas-starter && pnpm install && pnpm dev       # → :3000 + :4000
 
 # Course Builder (Lumofy)
 cd course-builder && pnpm install && pnpm dev     # → :5173
+
+# AI Chat Workspace (skills demo — free simulated default, BYOK for live providers)
+cd ai-chat && pnpm install && pnpm dev            # → :5173
 ```
 
 ## Contact

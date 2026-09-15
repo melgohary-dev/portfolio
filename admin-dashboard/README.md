@@ -4,8 +4,11 @@ A Next.js admin back-office built around a **virtualized 120,000-row orders
 grid**. Scrolls, sorts, and filters smoothly. Aggregation runs on a background
 Web Worker with measured ms. CSV export, saved views, full AR/EN RTL.
 
-This is a clean-room demo of the kind of enterprise admin console I built at
-Qumra for a Saudi client.
+This is an open-source sample of the enterprise ERP admin console I built at
+**Dexef** — a unified ERP handling accounting, inventory, restaurants, hotels,
+and airport operations. The production version used DevExtreme widgets, C#/.NET
+backend, and Azure DevOps. This demo reproduces the same architecture patterns
+(Worker aggregation, virtualized grids, RTL) using a modern Next.js stack.
 
 ## Pages
 

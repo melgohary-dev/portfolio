@@ -5,9 +5,14 @@ Modules, lessons, and content blocks (text, video, quiz, image, assignment) can
 be dragged, reordered, and nested. Full undo/redo, keyboard-accessible DnD,
 dark/light mode, preview mode, and auto-save to localStorage.
 
-This is a clean-room demo of the drag-and-drop content builders I built at
-**Lumofy** for the Learning Experience Platform (LXP), enabling non-technical
-admins to create courses and certificate templates without developer support.
+This is an open-source sample of the drag-and-drop content builders I designed
+at **Lumofy** for the Learning Experience Platform (LXP). The production system
+served non-technical admins building courses, content, and certificate templates
+at scale. It was part of a platform that improved UI performance by 60%,
+supported AI-powered content recommendations, and grew through investment from
+Mumtalakat, Tamkeen, and Gulf Air Group. This demo reproduces the core builder
+architecture (per-language version isolation, RTL, certificate builder) in a
+standalone React app.
 
 ## Architecture
 

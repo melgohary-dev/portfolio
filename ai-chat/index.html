@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f97316" />
+    <meta
+      name="description"
+      content="AI Chat Workspace — a realtime streaming AI chat demo with session management, markdown rendering, and keyboard-first UX"
+    />
+    <title>AI Chat — Workspace</title>
+    <script>
+      (function () {
+        try {
+          var saved = JSON.parse(
+            localStorage.getItem("ai-chat:ui") || "null",
+          );
+          if (saved && saved.state && saved.state.darkMode) {
+            document.documentElement.classList.add("dark");
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

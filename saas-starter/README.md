@@ -4,8 +4,12 @@ A production-grade, full-stack SaaS monorepo: auth, billing, Postgres with
 migrations, a documented OpenAPI backend, an admin back-office with live
 analytics, and full EN/AR localization.
 
-This is a clean-room demo of the SaaS platform I built at Qumra — auth, billing,
-multi-tenancy, and realtime in one deployable package.
+This is an open-source sample of the multi-tenant SaaS platform I built at
+**Qumra** for accounts and partner portals. The production version handled
+tenant isolation, Stripe billing, SSE realtime, rate limiting, and security
+headers for enterprise clients. This demo reproduces the same architecture
+(Next.js web, Hono API, Postgres + Drizzle, Auth.js) in a self-contained
+monorepo.
 
 ## Demo
 

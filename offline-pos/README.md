@@ -4,8 +4,14 @@ A React + Vite + TypeScript point-of-sale that keeps working with **zero
 network**. Orders write to a local database first, queue as mutations, and sync
 in the background with exponential backoff.
 
-This is a clean-room demo of the architecture I shipped at Qumra for a Saudi
-retail client.
+This is an open-source sample of the full offline-first POS system I
+architected at **Qumra** for the Saudi client Mostadam. The production version
+included WebUSB receipt printing, Electron desktop builds, CI/CD for
+cross-platform installers, a shared data-access library (@qumra/pos-core) with
+pluggable drivers (Web, Electron, React Native), and a custom sync engine with
+GraphQL dual-token auth. This demo reproduces the core offline architecture
+(SQLite WASM, BroadcastChannel, mutation queue, background sync) in a
+self-contained package.
 
 ## Demo
 
