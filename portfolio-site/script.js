@@ -8,10 +8,8 @@
   // PAGE START
   // ==============================
   function startPage() {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
     animateHero();
-    initParticles(vw, vh);
+    initParticles();
     initScrollObservers();
     initSmoothScroll();
     initLazyScroll();
@@ -55,37 +53,44 @@
   // ==============================
   // PARTICLES
   // ==============================
-  function initParticles(vw, vh) {
+  function initParticles() {
     const canvas = $('#particles');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let w, h, raf = 0, last = 0, running = true;
+    let w, h, raf = 0, last = -1000, running = true, seeded = false;
     const particles = [];
 
-    function resize() {
+    function seed() {
+      const count = Math.min(40, Math.floor(w / 40));
+      particles.length = 0;
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: Math.random() * 1.0 + 0.3,
+          dx: (Math.random() - 0.5) * 0.08,
+          dy: (Math.random() - 0.5) * 0.08,
+          o: Math.random() * 0.2 + 0.03,
+        });
+      }
+    }
+
+    function size() {
       w = canvas.width = window.innerWidth;
       h = canvas.height = window.innerHeight;
+      seed();
     }
 
-    w = canvas.width = vw;
-    h = canvas.height = vh;
-    window.addEventListener('resize', resize);
-
-    const count = Math.min(40, Math.floor(window.innerWidth / 40));
-    for (let i = 0; i < count; i++) {
-      particles.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        r: Math.random() * 1.0 + 0.3,
-        dx: (Math.random() - 0.5) * 0.08,
-        dy: (Math.random() - 0.5) * 0.08,
-        o: Math.random() * 0.2 + 0.03,
-      });
-    }
+    window.addEventListener('resize', size);
 
     function draw(now) {
-      if (now > 0 && now - last < 33) {
+      if (!seeded) {
+        size();
+        seeded = true;
+        last = now;
+      }
+      if (now - last < 33) {
         raf = requestAnimationFrame(draw);
         return;
       }
@@ -105,7 +110,7 @@
     }
 
     if (reduced) {
-      draw(0);
+      requestAnimationFrame(() => draw(0));
       return;
     }
     document.addEventListener('visibilitychange', () => {
@@ -113,7 +118,7 @@
       cancelAnimationFrame(raf);
       if (running) raf = requestAnimationFrame(draw);
     });
-    draw(0);
+    raf = requestAnimationFrame(draw);
   }
 
   // ==============================
