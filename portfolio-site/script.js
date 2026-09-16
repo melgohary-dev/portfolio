@@ -100,12 +100,17 @@
     function measure() {
       max = document.documentElement.scrollHeight - window.innerHeight;
     }
+    let ticking = false;
     function update() {
-      bar.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        bar.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
+        ticking = false;
+      });
     }
-    measure();
     window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', measure, { passive: true });
+    window.addEventListener('resize', () => { measure(); update(); }, { passive: true });
     window.addEventListener('load', measure, { passive: true });
     update();
   }
