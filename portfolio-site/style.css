@@ -1057,3 +1057,13 @@ body::before {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* ==============================
+   REDUCED MOTION
+   ============================== */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-progress { animation: none; }
+  [data-lazy], [data-reveal], [data-reveal-project], [data-reveal-timeline] {
+    transition: none;
+  }
+}

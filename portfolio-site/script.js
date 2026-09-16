@@ -21,16 +21,22 @@
   }
 
   function animateHero() {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const els = $$('.hero [data-hero]');
     els.forEach((el, i) => {
-      el.style.transition = `opacity 0.7s cubic-bezier(0.22,1,0.36,1) ${0.08 + i * 0.1}s, transform 0.7s cubic-bezier(0.22,1,0.36,1) ${0.08 + i * 0.1}s`;
+      if (!reduced) el.style.transition = `opacity 0.7s cubic-bezier(0.22,1,0.36,1) ${0.08 + i * 0.1}s, transform 0.7s cubic-bezier(0.22,1,0.36,1) ${0.08 + i * 0.1}s`;
       el.style.opacity = '1';
       el.style.transform = 'translateY(0)';
     });
 
-    // Count-up stats
+    const counters = $$('.stat-number');
+    if (reduced) {
+      counters.forEach(el => { el.textContent = el.dataset.count; });
+      return;
+    }
+
     setTimeout(() => {
-      $$('.stat-number').forEach(el => {
+      counters.forEach(el => {
         const target = parseInt(el.dataset.count);
         const duration = 1400;
         const start = performance.now();
@@ -51,7 +57,9 @@
     const canvas = $('#particles');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let w, h, particles = [];
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let w, h, raf = 0, last = 0, running = true;
+    const particles = [];
 
     function resize() {
       w = canvas.width = window.innerWidth;
@@ -61,7 +69,8 @@
     resize();
     window.addEventListener('resize', resize);
 
-    for (let i = 0; i < 40; i++) {
+    const count = Math.min(40, Math.floor(window.innerWidth / 40));
+    for (let i = 0; i < count; i++) {
       particles.push({
         x: Math.random() * w,
         y: Math.random() * h,
@@ -72,7 +81,12 @@
       });
     }
 
-    function draw() {
+    function draw(now) {
+      if (now > 0 && now - last < 33) {
+        raf = requestAnimationFrame(draw);
+        return;
+      }
+      last = now;
       ctx.clearRect(0, 0, w, h);
       for (const p of particles) {
         ctx.beginPath();
@@ -84,9 +98,19 @@
         if (p.x < 0 || p.x > w) p.dx *= -1;
         if (p.y < 0 || p.y > h) p.dy *= -1;
       }
-      requestAnimationFrame(draw);
+      if (running) raf = requestAnimationFrame(draw);
     }
-    draw();
+
+    if (reduced) {
+      draw(0);
+      return;
+    }
+    document.addEventListener('visibilitychange', () => {
+      running = !document.hidden;
+      cancelAnimationFrame(raf);
+      if (running) raf = requestAnimationFrame(draw);
+    });
+    draw(0);
   }
 
   // ==============================
