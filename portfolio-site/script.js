@@ -8,8 +8,10 @@
   // PAGE START
   // ==============================
   function startPage() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
     animateHero();
-    initParticles();
+    initParticles(vw, vh);
     initScrollObservers();
     initSmoothScroll();
     initLazyScroll();
@@ -53,7 +55,7 @@
   // ==============================
   // PARTICLES
   // ==============================
-  function initParticles() {
+  function initParticles(vw, vh) {
     const canvas = $('#particles');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -66,7 +68,8 @@
       h = canvas.height = window.innerHeight;
     }
 
-    resize();
+    w = canvas.width = vw;
+    h = canvas.height = vh;
     window.addEventListener('resize', resize);
 
     const count = Math.min(40, Math.floor(window.innerWidth / 40));
