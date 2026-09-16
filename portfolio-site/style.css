@@ -1062,7 +1062,6 @@ body::before {
    REDUCED MOTION
    ============================== */
 @media (prefers-reduced-motion: reduce) {
-  .scroll-progress { animation: none; }
   [data-lazy], [data-reveal], [data-reveal-project], [data-reveal-timeline] {
     transition: none;
   }
