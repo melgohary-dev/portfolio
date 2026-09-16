@@ -931,6 +931,7 @@ body::before {
    FOOTER
    ============================== */
 .footer {
+  --text-muted: #a1a1aa;
   position: relative;
   z-index: 1;
   border-top: 1px solid var(--border);
