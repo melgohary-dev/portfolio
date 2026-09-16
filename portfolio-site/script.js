@@ -11,7 +11,6 @@
     animateHero();
     initParticles();
     initScrollObservers();
-    initScrollProgress();
     initSmoothScroll();
     initLazyScroll();
     initNav();
@@ -88,31 +87,6 @@
       requestAnimationFrame(draw);
     }
     draw();
-  }
-
-  // ==============================
-  // SCROLL PROGRESS
-  // ==============================
-  function initScrollProgress() {
-    const bar = $('#scrollProgress');
-    if (!bar) return;
-    let max = 0;
-    function measure() {
-      max = document.documentElement.scrollHeight - window.innerHeight;
-    }
-    let ticking = false;
-    function update() {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        bar.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
-        ticking = false;
-      });
-    }
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', () => { measure(); update(); }, { passive: true });
-    window.addEventListener('load', measure, { passive: true });
-    update();
   }
 
   // ==============================
