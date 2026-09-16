@@ -14,7 +14,8 @@ gate.
 > - **Streaming UI** — token-by-token rendering from real API SSE streams or the
 >   deterministic mock engine, with cancellation and graceful partial-content retention.
 > - **Markdown rendering** — sanitized (DOMPurify) rendering of assistant messages with
->   syntax-highlighted code blocks, ordered/unordered lists, and copy buttons.
+>   `highlight.js` syntax-colored code blocks (light + dark palettes), ordered/unordered
+>   lists, and copy buttons.
 > - **Session management** — multiple conversations with rename, delete (with confirm),
 >   persistence to `localStorage`, and resume across reloads.
 > - **Keyboard-first UX** — `Enter` to send, `Shift+Enter` for a new line, `Esc` to stop,
@@ -108,6 +109,7 @@ simulated stream automatically.
 | Icons      | lucide-react                                         |
 | IDs        | nanoid                                               |
 | Sanitize   | DOMPurify                                            |
+| Syntax     | highlight.js (highlightCode helper + adaptive theme) |
 | Utilities  | clsx + tailwind-merge                                |
 | Unit tests | Vitest 4 + React Testing Library + jest-dom + jsdom  |
 | E2E        | Playwright                                           |
@@ -147,7 +149,7 @@ pnpm build        # tsc -b && vite build
 
 - **Unit/integration**: streaming engine, markdown renderer, persistence, both stores,
   provider adapters (parseSse, OpenAI, Gemini, mock), provider registry, and the
-  `useSendMessage` orchestration hook — **86 tests**.
+  `useSendMessage` orchestration hook, and syntax highlighting — **92 tests**.
 - **Coverage gate**: `statements` / `lines` / `functions` ≥ 80% on `src/lib`, `src/store`,
   `src/hooks` (via Vitest `coverage.thresholds`).
 - **E2E**: **15 scenarios** across chat flows, session management, theme, streaming/stop,
@@ -162,7 +164,7 @@ ai-chat/
 ├─ public/
 │  └─ favicon.svg
 ├─ src/
-│  ├─ __tests__/                  # unit + integration tests (86)
+│  ├─ __tests__/                  # unit + integration tests (92)
 │  │  ├─ chat-store.test.ts
 │  │  ├─ providers.test.ts        # parseSse, adapters, registry, key mgmt
 │  │  ├─ stream.test.ts, markdown.test.ts, ...

@@ -67,7 +67,7 @@ const DEFS: Record<ProviderId, ProviderDef> = {
     "groq",
     "Groq",
     "https://api.groq.com/openai/v1",
-    "llama-3.3-70b-versatile",
+    "openai/gpt-oss-120b",
     "VITE_GROQ_API_KEY",
   ),
   together: openAiCompat(

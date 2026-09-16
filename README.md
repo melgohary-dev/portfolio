@@ -115,7 +115,7 @@ payment.
 - **Simulated fallback** — zero-setup offline mode streams deterministic demo
   responses whenever a live provider has no key configured
 - Session management, sanitized markdown with code copy, dark/light, mobile drawer
-- 87 unit/integration tests behind an 80% coverage gate · 15 Playwright e2e scenarios
+- 92 unit/integration tests behind an 80% coverage gate · 15 Playwright e2e scenarios
 
 **Stack:** React 19 · Vite 8 · TypeScript · Tailwind v4 · Zustand 5 · Vitest · Playwright
 

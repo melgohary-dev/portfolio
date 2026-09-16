@@ -1,6 +1,16 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Check, Copy } from "lucide-react";
+import { highlightCode } from "../../lib/highlight";
 import { renderMarkdown } from "../../lib/markdown";
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 function CodeBlock({
   language,
@@ -10,6 +20,14 @@ function CodeBlock({
   code: string;
 }) {
   const [copied, setCopied] = useState(false);
+
+  const highlighted = useMemo(() => {
+    try {
+      return highlightCode(code, language);
+    } catch {
+      return escapeHtml(code);
+    }
+  }, [code, language]);
 
   const copy = async () => {
     try {
@@ -45,9 +63,10 @@ function CodeBlock({
         </button>
       </div>
       <pre className="overflow-x-auto p-3 text-[13px] leading-relaxed">
-        <code className="font-mono text-gray-800 dark:text-gray-200">
-          {code}
-        </code>
+        <code
+          className="syn font-mono text-gray-800 dark:text-gray-200"
+          dangerouslySetInnerHTML={{ __html: highlighted }}
+        />
       </pre>
     </div>
   );
