@@ -96,13 +96,17 @@
   function initScrollProgress() {
     const bar = $('#scrollProgress');
     if (!bar) return;
-    function update() {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-      bar.style.width = progress + '%';
+    let max = 0;
+    function measure() {
+      max = document.documentElement.scrollHeight - window.innerHeight;
     }
+    function update() {
+      bar.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
+    }
+    measure();
     window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', measure, { passive: true });
+    window.addEventListener('load', measure, { passive: true });
     update();
   }
 
