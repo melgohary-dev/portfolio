@@ -104,7 +104,8 @@ function generatePassword(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*';
   let result = '';
   for (let i = 0; i < 24; i++) {
-    result += chars[bytes[i % bytes.length] % chars.length];
+    const byte = bytes[i % bytes.length] ?? 0;
+    result += chars[byte % chars.length] ?? '';
   }
   return result;
 }
