@@ -62,7 +62,7 @@
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let w, h, raf = 0, last = -1000, running = true, seeded = false;
+    let w = 0, h = 0, raf = 0, last = -1000, running = true, seeded = false;
     const particles = [];
 
     function seed() {
@@ -80,19 +80,18 @@
       }
     }
 
-    function size() {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
+    const ro = new ResizeObserver((entries) => {
+      w = canvas.width = Math.round(entries[0].contentRect.width);
+      h = canvas.height = Math.round(entries[0].contentRect.height);
       seed();
-    }
-
-    window.addEventListener('resize', size);
+      seeded = true;
+    });
+    ro.observe(canvas);
 
     function draw(now) {
       if (!seeded) {
-        size();
-        seeded = true;
-        last = now;
+        raf = requestAnimationFrame(draw);
+        return;
       }
       if (now - last < 33) {
         raf = requestAnimationFrame(draw);
