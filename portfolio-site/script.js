@@ -9,15 +9,19 @@
   // ==============================
   function startPage() {
     animateHero();
-    initParticles();
-    initScrollObservers();
-    initSmoothScroll();
-    initLazyScroll();
-    initNav();
-    initMobileMenu();
-    initTyping();
-    initParallax();
-    initBackToTop();
+    requestAnimationFrame(() => {
+      initParticles();
+      initScrollObservers();
+      initLazyScroll();
+      initSmoothScroll();
+      initNav();
+      initMobileMenu();
+      initBackToTop();
+      requestAnimationFrame(() => {
+        initTyping();
+        initParallax();
+      });
+    });
   }
 
   function animateHero() {
