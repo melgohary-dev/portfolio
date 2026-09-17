@@ -34,3 +34,5 @@ playwright-report
 
 # Local planning notes (not published)
 planning/
+
+.vercel

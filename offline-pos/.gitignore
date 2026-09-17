@@ -35,3 +35,4 @@ electron/dist
 
 # Local planning notes (not published)
 planning/
+.vercel

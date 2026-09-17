@@ -9,6 +9,7 @@
   <meta name="keywords" content="Mohamed Elgohary, Senior Front-End Engineer, React, TypeScript, Next.js, Enterprise SaaS, Offline-First, ERP, POS System, Cairo Egypt, Front-End Developer">
   <meta name="author" content="Mohamed Elgohary">
   <link rel="canonical" href="https://melgohary-dev.github.io/portfolio/">
+  <link rel="llms.txt" href="llms.txt">
   <meta property="og:title" content="Mohamed Elgohary — Senior Front-End Engineer">
   <meta property="og:description" content="Senior Front-End Engineer with 5+ years building enterprise SaaS, ERP, and offline-first applications. React, TypeScript, Next.js specialist.">
   <meta property="og:type" content="profile">
@@ -20,6 +21,12 @@
   <meta name="twitter:title" content="Mohamed Elgohary — Senior Front-End Engineer">
   <meta name="twitter:description" content="Senior Front-End Engineer with 5+ years building enterprise SaaS, ERP, and offline-first applications. React, TypeScript, Next.js specialist.">
   <meta name="twitter:creator" content="@melgohary-dev">
+  <meta property="og:image" content="https://melgohary-dev.github.io/portfolio/og-image.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:image" content="https://melgohary-dev.github.io/portfolio/og-image.png">
+
   <meta name="theme-color" content="#09090b">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -606,11 +613,11 @@ body::before {
 .project-image-inner { overflow: hidden; }
 
 .project-placeholder {
-  aspect-ratio: 4/3;
+  aspect-ratio: 32/19;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 0;
   color: var(--text-muted);
   background: linear-gradient(135deg, var(--bg-card) 0%, rgba(249, 115, 22, 0.03) 100%);
 }
@@ -627,6 +634,13 @@ body::before {
   transform: scale(1.08) rotate(2deg);
 }
 
+
+.project-placeholder img.project-shot {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 .project-overlay {
   position: absolute;
   inset: 0;
@@ -1277,19 +1291,11 @@ body::before {
       <div class="project-image" data-parallax>
         <div class="project-image-inner">
           <div class="project-placeholder">
-            <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="10" y="20" width="100" height="80" rx="8" stroke="currentColor" stroke-width="2"/>
-              <rect x="20" y="35" width="35" height="25" rx="4" stroke="currentColor" stroke-width="1.5"/>
-              <rect x="20" y="65" width="80" height="3" rx="1.5" fill="currentColor" opacity="0.3"/>
-              <rect x="20" y="72" width="60" height="3" rx="1.5" fill="currentColor" opacity="0.3"/>
-              <rect x="20" y="79" width="70" height="3" rx="1.5" fill="currentColor" opacity="0.3"/>
-              <circle cx="85" cy="47" r="15" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M85 40v14M78 47h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
+            <img class="project-shot" src="screens/offline-pos.png" alt="Offline Pos application screenshot" width="1280" height="760" loading="lazy" decoding="async">
           </div>
         </div>
         <div class="project-overlay">
-          <a href="https://github.com/melgohary-dev/portfolio/tree/main/offline-pos" target="_blank" class="btn btn-primary btn-sm">View Source</a>
+          <a href="https://github.com/melgohary-dev/portfolio/tree/main/offline-pos" target="_blank" rel="noopener" class="btn btn-primary btn-sm">View Source</a>
         </div>
       </div>
       <div class="project-info">
@@ -1307,8 +1313,9 @@ body::before {
           <span>113 Tests</span>
         </div>
         <div class="project-links">
-          <a href="https://github.com/melgohary-dev/portfolio/tree/main/offline-pos" target="_blank" class="link-arrow">Source Code</a>
-          <a href="https://github.com/melgohary-dev/portfolio/blob/main/offline-pos/docs/demo/offline-pos-demo.webm" target="_blank" class="link-arrow">Watch Demo</a>
+          <a href="https://offline-pos-theta.vercel.app" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Live Demo</a>
+          <a href="https://github.com/melgohary-dev/portfolio/tree/main/offline-pos" target="_blank" rel="noopener" class="link-arrow">Source Code</a>
+          <a href="https://github.com/melgohary-dev/portfolio/blob/main/offline-pos/docs/demo/offline-pos-demo.webm" target="_blank" rel="noopener" class="link-arrow">Watch Demo</a>
         </div>
       </div>
     </article>
@@ -1317,20 +1324,11 @@ body::before {
       <div class="project-image" data-parallax>
         <div class="project-image-inner">
           <div class="project-placeholder">
-            <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="10" y="10" width="25" height="100" rx="4" stroke="currentColor" stroke-width="1.5"/>
-              <rect x="42" y="10" width="68" height="20" rx="4" stroke="currentColor" stroke-width="1.5"/>
-              <rect x="42" y="37" width="32" height="32" rx="4" stroke="currentColor" stroke-width="1.5"/>
-              <rect x="80" y="37" width="30" height="32" rx="4" stroke="currentColor" stroke-width="1.5"/>
-              <rect x="42" y="76" width="68" height="34" rx="4" stroke="currentColor" stroke-width="1.5"/>
-              <line x1="48" y1="86" x2="68" y2="86" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              <line x1="48" y1="92" x2="60" y2="92" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              <line x1="48" y1="98" x2="65" y2="98" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
+            <img class="project-shot" src="screens/admin-dashboard.png" alt="Admin Dashboard application screenshot" width="1280" height="760" loading="lazy" decoding="async">
           </div>
         </div>
         <div class="project-overlay">
-          <a href="https://github.com/melgohary-dev/portfolio/tree/main/admin-dashboard" target="_blank" class="btn btn-primary btn-sm">View Source</a>
+          <a href="https://github.com/melgohary-dev/portfolio/tree/main/admin-dashboard" target="_blank" rel="noopener" class="btn btn-primary btn-sm">View Source</a>
         </div>
       </div>
       <div class="project-info">
@@ -1343,12 +1341,14 @@ body::before {
         <div class="tags">
           <span>Next.js 16</span>
           <span>TanStack Virtual</span>
-          <span>Web Worker</span>
+          <span>W          <a href="https://admin-dashboard-self-three-45.vercel.app" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Live Demo</a>
+eb Worker</span>
           <span>Recharts</span>
           <span>120k Rows</span>
+          <span>86 Tests</span>
         </div>
         <div class="project-links">
-          <a href="https://github.com/melgohary-dev/portfolio/tree/main/admin-dashboard" target="_blank" class="link-arrow">Source Code</a>
+          <a href="https://github.com/melgohary-dev/portfolio/tree/main/admin-dashboard" target="_blank" rel="noopener" class="link-arrow">Source Code</a>
         </div>
       </div>
     </article>
@@ -1357,21 +1357,11 @@ body::before {
       <div class="project-image" data-parallax>
         <div class="project-image-inner">
           <div class="project-placeholder">
-            <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="10" y="10" width="35" height="100" rx="4" stroke="currentColor" stroke-width="1.5"/>
-              <rect x="16" y="20" width="23" height="14" rx="3" stroke="currentColor" stroke-width="1.5"/>
-              <rect x="16" y="40" width="23" height="14" rx="3" stroke="currentColor" stroke-width="1.5"/>
-              <rect x="16" y="60" width="23" height="14" rx="3" stroke="currentColor" stroke-width="1.5"/>
-              <rect x="52" y="10" width="58" height="100" rx="4" stroke="currentColor" stroke-width="1.5"/>
-              <rect x="58" y="20" width="46" height="8" rx="2" fill="currentColor" opacity="0.2"/>
-              <rect x="58" y="34" width="46" height="20" rx="3" stroke="currentColor" stroke-width="1"/>
-              <rect x="58" y="60" width="22" height="40" rx="3" stroke="currentColor" stroke-width="1"/>
-              <rect x="84" y="60" width="20" height="40" rx="3" stroke="currentColor" stroke-width="1"/>
-            </svg>
+            <img class="project-shot" src="screens/course-builder.png" alt="Course Builder application screenshot" width="1280" height="760" loading="lazy" decoding="async">
           </div>
         </div>
         <div class="project-overlay">
-          <a href="https://github.com/melgohary-dev/portfolio/tree/main/course-builder" target="_blank" class="btn btn-primary btn-sm">View Source</a>
+          <a href="https://github.com/melgohary-dev/portfolio/tree/main/course-builder" target="_blank" rel="noopener" class="btn btn-primary btn-sm">View Source</a>
         </div>
       </div>
       <div class="project-info">
@@ -1380,7 +1370,8 @@ body::before {
           <span class="sample-label">Sample — Drag-and-Drop Builder</span>
         </div>
         <h3>Course Builder</h3>
-        <p>Distills the drag-and-drop content builder I designed at Lumofy for a corporate LXP. Per-language version isolation, RTL, certificate builder, undo/redo. The production system served non-technical admins building courses, content, and certificate templates at scale.</p>
+        <p>Distills the drag-and-drop content builder I designed at Lumofy for a corporate LXP. Per-language version isolation, RTL, certificate builder, undo/redo. The production system served non-technical admins building courses, con          <a href="https://course-builder-pi-green.vercel.app" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Live Demo</a>
+tent, and certificate templates at scale.</p>
         <div class="tags">
           <span>React 19</span>
           <span>@dnd-kit</span>
@@ -1389,7 +1380,7 @@ body::before {
           <span>54 Tests</span>
         </div>
         <div class="project-links">
-          <a href="https://github.com/melgohary-dev/portfolio/tree/main/course-builder" target="_blank" class="link-arrow">Source Code</a>
+          <a href="https://github.com/melgohary-dev/portfolio/tree/main/course-builder" target="_blank" rel="noopener" class="link-arrow">Source Code</a>
         </div>
       </div>
     </article>
@@ -1398,18 +1389,11 @@ body::before {
       <div class="project-image" data-parallax>
         <div class="project-image-inner">
           <div class="project-placeholder">
-            <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="10" y="10" width="100" height="100" rx="8" stroke="currentColor" stroke-width="1.5"/>
-              <circle cx="60" cy="40" r="12" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M35 80c0-13.8 11.2-25 25-25s25 11.2 25 25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              <rect x="30" y="90" width="25" height="6" rx="3" stroke="currentColor" stroke-width="1"/>
-              <rect x="65" y="90" width="25" height="6" rx="3" stroke="currentColor" stroke-width="1"/>
-              <line x1="60" y1="55" x2="60" y2="65" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
+            <img class="project-shot" src="screens/saas-starter.png" alt="Saas Starter application screenshot" width="1280" height="760" loading="lazy" decoding="async">
           </div>
         </div>
         <div class="project-overlay">
-          <a href="https://github.com/melgohary-dev/portfolio/tree/main/saas-starter" target="_blank" class="btn btn-primary btn-sm">View Source</a>
+          <a href="https://github.com/melgohary-dev/portfolio/tree/main/saas-starter" target="_blank" rel="noopener" class="btn btn-primary btn-sm">View Source</a>
         </div>
       </div>
       <div class="project-info">
@@ -1427,35 +1411,31 @@ body::before {
           <span>Stripe</span>
         </div>
         <div class="project-links">
-          <a href="https://github.com/melgohary-dev/portfolio/tree/main/saas-starter" target="_blank" class="link-arrow">Source Code</a>
-          <a href="https://github.com/melgohary-dev/portfolio/blob/main/saas-starter/docs/demo/saas-demo.webm" target="_blank" class="link-arrow">Watch Demo</a>
+          <a href="https://github.com/melgohary-dev/portfolio/tree/main/saas-starter" target="_blank" rel="noopener" class="link-arrow">Source Code</a>
+          <a href="https://github.com/melgohary-dev/portfolio/blob/main/saas-starter/docs/demo/saas-demo.webm" target="_blank" rel="noopener" class="link-arrow">Watch Demo</a>
         </div>
       </div>
+    </article>
+
     <article class="project" data-reveal-project>
       <div class="project-image" data-parallax>
         <div class="project-image-inner">
           <div class="project-placeholder">
-            <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="8" y="20" width="72" height="40" rx="9" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M22 60v14l16-9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="51" cy="40" r="5" fill="currentColor" opacity="0.35"/>
-              <rect x="44" y="66" width="68" height="38" rx="9" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M88 104l3-3 3 3-3 3z" fill="currentColor" opacity="0.35"/>
-              <path d="M60 76h36M60 84h28" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-            </svg>
+            <img class="project-shot" src="screens/ai-chat.png" alt="Ai Chat application screenshot" width="1280" height="760" loading="lazy" decoding="async">
           </div>
         </div>
         <div class="project-overlay">
-          <a href="https://github.com/melgohary-dev/portfolio/tree/main/ai-chat" target="_blank" class="btn btn-primary btn-sm">View Source</a>
+          <a href="https://github.com/melgohary-dev/portfolio/tree/main/ai-chat" target="_blank" rel="noopener" class="btn btn-primary btn-sm">View Source</a>
         </div>
       </div>
       <div class="project-info">
         <div class="project-meta">
-          <span class="year">Skills Demo</span>
+          <span class="company">Skills Demo</span>
           <span class="sample-label">Sample — AI Chat Workspace</span>
         </div>
         <h3>AI Chat Workspace</h3>
-        <p>From-scratch realtime AI chat built to show multi-provider LLM streaming done right. Bring-your-own-key providers (Gemini, OpenAI, OpenRouter, Groq, Together, Mistral, DeepSeek) with a free simulated default, token-by-token streaming, markdown, and session persistence.</p>
+        <p>From-scratch realtime AI chat built to show multi-provider LLM streaming done right. Bring-your-own-key providers (Gemini, O          <a href="https://ai-chat-fawn-six.vercel.app" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Live Demo</a>
+penAI, OpenRouter, Groq, Together, Mistral, DeepSeek) with a free simulated default, token-by-token streaming, markdown, and session persistence.</p>
         <div class="tags">
           <span>React 19</span>
           <span>Vite 8</span>
@@ -1465,7 +1445,7 @@ body::before {
           <span>92 Tests</span>
         </div>
         <div class="project-links">
-          <a href="https://github.com/melgohary-dev/portfolio/tree/main/ai-chat" target="_blank" class="link-arrow">Source Code</a>
+          <a href="https://github.com/melgohary-dev/portfolio/tree/main/ai-chat" target="_blank" rel="noopener" class="link-arrow">Source Code</a>
         </div>
       </div>
     </article>
@@ -1641,11 +1621,11 @@ body::before {
       </div>
 
       <div class="contact-socials">
-        <a href="https://github.com/melgohary-dev" target="_blank" class="contact-social" aria-label="GitHub">
+        <a href="https://github.com/melgohary-dev" target="_blank" rel="noopener" class="contact-social" aria-label="GitHub">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
           <span>GitHub</span>
         </a>
-        <a href="https://www.linkedin.com/in/melgohary-dev" target="_blank" class="contact-social" aria-label="LinkedIn">
+        <a href="https://www.linkedin.com/in/melgohary-dev" target="_blank" rel="noopener" class="contact-social" aria-label="LinkedIn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
           <span>LinkedIn</span>
         </a>

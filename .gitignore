@@ -11,6 +11,9 @@ electron/dist/
 .turbo/
 *.tsbuildinfo
 
+# Vercel
+.vercel/
+
 # Environment
 .env
 .env.*

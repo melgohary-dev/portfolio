@@ -1,0 +1,29 @@
+# Mohamed Elgohary
+
+> Senior Front-End Engineer based in Cairo, Egypt (5+ years).
+> Specializes in enterprise-grade React/TypeScript applications: offline-first
+> POS systems, virtualized data grids, drag-and-drop content builders, and
+> multi-tenant SaaS platforms. Care about architecture, performance, and
+> production-quality code verified by tests.
+
+## Sections
+
+- Home: https://melgohary-dev.github.io/portfolio/
+- Technical Samples (open-source demos): https://melgohary-dev.github.io/portfolio/#work
+- About & Skills: https://melgohary-dev.github.io/portfolio/#about
+- Experience: https://melgohary-dev.github.io/portfolio/#experience
+- Contact: https://melgohary-dev.github.io/portfolio/#contact
+
+## Open Source
+
+- OfflinePOS — offline-first point of sale: https://offline-pos-theta.vercel.app
+- Admin Dashboard — virtualized 120k-row grid: https://admin-dashboard-self-three-45.vercel.app
+- Course Builder — drag-and-drop curriculum builder: https://course-builder-pi-green.vercel.app
+- AI Chat Workspace — multi-provider LLM streaming UI: https://ai-chat-fawn-six.vercel.app
+- SaaS Starter — full-stack SaaS monorepo (Next.js + Hono + Postgres): https://github.com/melgohary-dev/portfolio/tree/main/saas-starter
+
+## Contact
+
+- Email: melgohary.dev@gmail.com
+- GitHub: https://github.com/melgohary-dev
+- LinkedIn: https://www.linkedin.com/in/melgohary-dev
