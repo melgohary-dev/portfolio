@@ -1114,9 +1114,12 @@ body::before {
   {
     "@context": "https://schema.org",
     "@type": "Person",
-    "name": "Mohamed Elgohary",
-    "jobTitle": "Senior Front-End Engineer",
-    "url": "https://melgohary-dev.github.io/portfolio/v3/",
+    "name": "Mohamed Samara Elgohary",
+    "alternateName": ["Melgohary", "melgohary.dev", "melgohary-dev", "melgohary_dev"],
+    "url": "https://melgohary.dev",
+    "image": "https://melgohary.dev/me.jpg",
+    "jobTitle": "Software Developer",
+    "description": "Mohamed Samara Elgohary, known as Melgohary.dev",
     "email": "melgohary.dev@gmail.com",
     "telephone": "+201030085710",
     "address": {
@@ -1125,15 +1128,17 @@ body::before {
       "addressCountry": "EG"
     },
     "sameAs": [
-      "https://github.com/melgohary-dev",
-      "https://www.linkedin.com/in/melgohary-dev"
+      "https://github.com/melgoharydev",
+      "https://x.com/melgoharydev",
+      "https://www.linkedin.com/in/melgoharydev"
     ],
     "knowsAbout": [
-      "React", "TypeScript", "Next.js", "JavaScript", "HTML5", "CSS3",
+      "React", "TypeScript", "Next.js (App Router)", "JavaScript", "HTML5", "CSS3",
       "Tailwind CSS", "Ant Design", "Zustand", "Redux Toolkit", "TanStack React Query",
-      "GraphQL", "REST APIs", "Node.js", "Express", "Python", "Django",
-      "SQLite", "MySQL", "MongoDB", "Electron", "PWA", "Service Workers",
-      "Offline-First Architecture", "Jest", "GitHub Actions", "Turborepo", "Vite",
+      "GraphQL", "REST APIs", "Node.js", "Express",
+      "SQLite", "PostgreSQL", "MySQL", "MongoDB", "PWA", "Service Workers",
+      "Offline-First Architecture", "Jest", "React Testing Library", "Vitest", "Playwright",
+      "Docker", "GitHub Actions", "Turborepo", "Vite",
       "Enterprise SaaS", "ERP", "POS System", "Drag and Drop", "Data Virtualization"
     ],
     "hasOccupation": [
@@ -1304,10 +1309,10 @@ body::before {
           <span class="sample-label">Sample — Offline-First POS</span>
         </div>
         <h3>OfflinePOS</h3>
-        <p>Mirror of the production POS system I architected at Qumra. Zero network dependency, SQLite WASM locally, background sync, multi-tab BroadcastChannel, parked carts, multi-tax, full AR/EN RTL. The real system handles live orders and payment integrations.</p>
+        <p>Mirror of the production POS system I architected at Qumra. Zero network dependency, SQLite locally, background sync, multi-tab sync, parked carts, multi-tax, full AR/EN RTL. The real system handles live orders and payment integrations.</p>
         <div class="tags">
           <span>React 19</span>
-          <span>SQLite WASM</span>
+          <span>SQLite</span>
           <span>Zustand</span>
           <span>Electron</span>
           <span>113 Tests</span>
@@ -1341,13 +1346,13 @@ body::before {
         <div class="tags">
           <span>Next.js 16</span>
           <span>TanStack Virtual</span>
-          <span>W          <a href="https://admin-dashboard-self-three-45.vercel.app" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Live Demo</a>
-eb Worker</span>
+          <span>Web Worker</span>
           <span>Recharts</span>
           <span>120k Rows</span>
           <span>86 Tests</span>
         </div>
         <div class="project-links">
+          <a href="https://admin-dashboard-self-three-45.vercel.app" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Live Demo</a>
           <a href="https://github.com/melgohary-dev/portfolio/tree/main/admin-dashboard" target="_blank" rel="noopener" class="link-arrow">Source Code</a>
         </div>
       </div>
@@ -1370,8 +1375,7 @@ eb Worker</span>
           <span class="sample-label">Sample — Drag-and-Drop Builder</span>
         </div>
         <h3>Course Builder</h3>
-        <p>Distills the drag-and-drop content builder I designed at Lumofy for a corporate LXP. Per-language version isolation, RTL, certificate builder, undo/redo. The production system served non-technical admins building courses, con          <a href="https://course-builder-pi-green.vercel.app" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Live Demo</a>
-tent, and certificate templates at scale.</p>
+        <p>Distills the drag-and-drop content builder I designed at Lumofy for a corporate LXP. Per-language version isolation, RTL, certificate builder, undo/redo. The production system served non-technical admins building courses, content, and certificate templates at scale.</p>
         <div class="tags">
           <span>React 19</span>
           <span>@dnd-kit</span>
@@ -1380,6 +1384,7 @@ tent, and certificate templates at scale.</p>
           <span>54 Tests</span>
         </div>
         <div class="project-links">
+          <a href="https://course-builder-pi-green.vercel.app" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Live Demo</a>
           <a href="https://github.com/melgohary-dev/portfolio/tree/main/course-builder" target="_blank" rel="noopener" class="link-arrow">Source Code</a>
         </div>
       </div>
@@ -1434,8 +1439,7 @@ tent, and certificate templates at scale.</p>
           <span class="sample-label">Sample — AI Chat Workspace</span>
         </div>
         <h3>AI Chat Workspace</h3>
-        <p>From-scratch realtime AI chat built to show multi-provider LLM streaming done right. Bring-your-own-key providers (Gemini, O          <a href="https://ai-chat-fawn-six.vercel.app" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Live Demo</a>
-penAI, OpenRouter, Groq, Together, Mistral, DeepSeek) with a free simulated default, token-by-token streaming, markdown, and session persistence.</p>
+        <p>From-scratch realtime AI chat built to show multi-provider LLM streaming done right. Bring-your-own-key providers (Gemini, OpenAI, OpenRouter, Groq, Together, Mistral, DeepSeek) with a free simulated default, token-by-token streaming, markdown, and session persistence.</p>
         <div class="tags">
           <span>React 19</span>
           <span>Vite 8</span>
@@ -1445,6 +1449,7 @@ penAI, OpenRouter, Groq, Together, Mistral, DeepSeek) with a free simulated defa
           <span>92 Tests</span>
         </div>
         <div class="project-links">
+          <a href="https://ai-chat-fawn-six.vercel.app" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Live Demo</a>
           <a href="https://github.com/melgohary-dev/portfolio/tree/main/ai-chat" target="_blank" rel="noopener" class="link-arrow">Source Code</a>
         </div>
       </div>
@@ -1469,7 +1474,7 @@ penAI, OpenRouter, Groq, Together, Mistral, DeepSeek) with a free simulated defa
           <div class="skill-tags">
             <span>React</span>
             <span>TypeScript</span>
-            <span>Next.js</span>
+            <span>Next.js (App Router)</span>
           </div>
         </div>
         <div class="skill-group">
@@ -1491,10 +1496,7 @@ penAI, OpenRouter, Groq, Together, Mistral, DeepSeek) with a free simulated defa
           <div class="skill-tags">
             <span>Offline-First</span>
             <span>Custom Sync Engines</span>
-            <span>BroadcastChannel</span>
             <span>Outbox Pattern</span>
-            <span>Electron</span>
-            <span>WebUSB</span>
             <span>PWA</span>
             <span>Service Workers</span>
           </div>
@@ -1504,9 +1506,9 @@ penAI, OpenRouter, Groq, Together, Mistral, DeepSeek) with a free simulated defa
           <div class="skill-tags">
             <span>Node.js</span>
             <span>Express</span>
-            <span>Python (Django)</span>
             <span>REST APIs</span>
-            <span>SQLite (WASM)</span>
+            <span>SQLite</span>
+            <span>PostgreSQL</span>
             <span>MySQL</span>
             <span>MongoDB</span>
           </div>
@@ -1515,6 +1517,10 @@ penAI, OpenRouter, Groq, Together, Mistral, DeepSeek) with a free simulated defa
           <h3>Testing & Tooling</h3>
           <div class="skill-tags">
             <span>Jest</span>
+            <span>React Testing Library</span>
+            <span>Vitest</span>
+            <span>Playwright</span>
+            <span>Docker</span>
             <span>GitHub Actions</span>
             <span>Turborepo</span>
             <span>Vite</span>
@@ -1539,7 +1545,7 @@ penAI, OpenRouter, Groq, Together, Mistral, DeepSeek) with a free simulated defa
         <div class="timeline-content">
           <h3>Senior Front-End Engineer</h3>
           <span class="company-name">Qumra</span>
-          <p>Architected a full offline-first POS from scratch using React 19, Vite, TypeScript, and SQLite (WASM) with zero network dependency. Designed a shared data-access library (@qumra/pos-core) with pluggable drivers covering ~85% of the data layer. Built Electron desktop wrapper and CI/CD for cross-platform installers (Windows, macOS, Linux).</p>
+          <p>Architected a full offline-first POS from scratch using React 19, Vite, TypeScript, and SQLite with zero network dependency. Designed a shared data-access library (@qumra/pos-core) with pluggable drivers covering ~85% of the data layer. Built Electron desktop wrapper and CI/CD for cross-platform installers (Windows, macOS, Linux).</p>
         </div>
       </div>
       <div class="timeline-item" data-reveal-timeline>
