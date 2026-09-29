@@ -1,175 +1,96 @@
-# Portfolio
+# Mohamed Elgohary
 
-**Live site:** https://melgohary-dev.github.io/portfolio/
+### Senior Front-End Engineer
 
-Five open-source **technical samples** demonstrating the architecture, patterns,
-and scale of production systems I've delivered across **Qumra**, **Lumofy**, and
-**Dexef**.
+I build scalable web applications and complex product experiences with
+**React, TypeScript, and Next.js**.
 
-These are not the proprietary codebases — they are clean-room reimplementations
-that prove I can build them. No client code, secrets, API endpoints, or branding.
+**Portfolio:** https://melgohary-dev.github.io/portfolio/
 
----
+My main areas of interest are:
 
-## Projects
+- Scalable Front-End Architecture
+- Offline-First Applications
+- High-Performance React
+- SaaS & ERP Systems
+- Desktop Applications with Electron
+- Local-First Data & Synchronization
+- AI-Powered Product Experiences
 
-### [OfflinePOS](./offline-pos) — Offline-First Point of Sale
+## Tech Stack
 
-> **Qumra** — Built for a Saudi retail client (Mostadam)
+### Frontend
 
-A React + Vite POS where checkout works with **zero network**. Orders write to a
-local database first, queue as mutations, and sync in the background with
-exponential backoff.
+React · TypeScript · Next.js · Vite · Zustand · Redux Toolkit
+TanStack Query · GraphQL · Ant Design · Tailwind CSS
 
-- `StorageProvider` abstraction (localStorage demo → SQLite/WASM production path)
-- Outbox-style mutation queue with pending / synced / dead states
-- Sync engine with retry, backoff, and temp-ID resolution
-- Live multi-tab sync via BroadcastChannel + heartbeat registry
-- Parked carts, multi-tax + percent discounts, order editing, full AR/EN RTL
-- 113 unit tests + Playwright e2e offline-sync suite
+### Architecture
 
-> [Watch the demo](./offline-pos/docs/demo/offline-pos-demo.webm) — catalog,
-> cart, discounts, charge, offline simulation, and background sync.
+Offline-First · Local-First · Custom Sync Engines
+Outbox Pattern · Multi-Tab Synchronization
+PWA · Service Workers
 
-**Stack:** React 19 · Vite · TypeScript · Zustand · Tailwind v4 · Vitest · Playwright
+### Backend
 
----
+Node.js · Express · REST APIs · GraphQL
 
-### [Admin Dashboard](./admin-dashboard) — Admin Back-Office
+### Databases
 
-> **Dexef** — Unified ERP suite for accounting, inventory, hospitality, and operations
+SQLite · PostgreSQL · MySQL · MongoDB
 
-A Next.js admin console built around a **virtualized 120,000-row orders grid**.
-Scrolls, sorts, and filters smoothly. Aggregation runs on a background Web Worker
-with measured ms. CSV export, saved views, full AR/EN RTL.
+### Engineering
 
-- Row virtualization (~20 DOM nodes for 120k rows) + pinned start/end columns
-- Seeded deterministic dataset — same orders on every reload
-- Web Worker offloads sort/filter/aggregate off the main thread
-- Fixed sidebar layout, viewport-scoped grid scroll, Cmd+K search shortcut
-- Dark mode with proper contrast ratios (WCAG AA on all status badges)
-- KPI dashboard with charts, users page, settings page, loading/not-found states
-- Playwright e2e suite (accessibility, responsive, navigation, dashboard, settings, users)
-
-**Stack:** Next.js 16 · React 19 · TypeScript · Tailwind v4 · Recharts · TanStack Table & Virtual
+GitHub Actions · Turborepo · Monorepos · Jest · Vitest · MSW · Playwright · Docker
 
 ---
 
-### [SaaS Starter](./saas-starter) — Full-Stack SaaS Backend
+## Featured Projects
 
-> **Qumra** — Accounts, partner portal, and multi-tenant SaaS backend
+### Offline-First POS
 
-A complete, deployable multi-tenant SaaS monorepo. Next.js web app, Hono
-OpenAPI backend, Postgres + Drizzle ORM, Auth.js, Stripe billing (with simulated
-checkout), SSE realtime, and full EN/AR localization.
+An offline-first Point of Sale architecture built with:
 
-- **Multi-tenancy** — tenant_id scoping (RLS-ready) with invite/member model
-- **Billing** — Free/Pro plans; simulated mode needs no Stripe keys
-- **Realtime** — SSE pushes new-order toasts to every open tab
-- **Auth** — HMAC-signed request tokens between web and API
-- **I18n** — EN/AR with RTL, cookie-synced locale
-- **Security** — rate limiting, security headers, typed API error responses, random seed passwords
-- 24/24 turbo gates green · 30+ unit/integration tests · GitHub Actions CI
+React · TypeScript · SQLite · Electron · GraphQL
 
-> [Watch the demo](./saas-starter/docs/demo/saas-demo.webm) — sign up → invite →
-> order (live SSE toast) → upgrade to Pro → analytics → Arabic/RTL.
+Features:
 
-**Stack:** Next.js 16 · Hono · Postgres · Drizzle · Auth.js · Stripe · Docker · Vitest
+- Local-first data persistence
+- Offline mutation queue
+- Background synchronization
+- Live queries
+- Multi-platform architecture
+- Pluggable data drivers
 
 ---
 
-### [Course Builder](./course-builder) — Drag-and-Drop Course Builder
+### Custom State Management System
 
-> **Lumofy** — Course and certificate template editing for the LXP
+A TypeScript-based state management system designed around:
 
-A visual course editor built with React 19 and dnd-kit. Build structured
-curricula with modules, lessons, and content blocks (text, video, quiz, image,
-assignment, divider). Drag-and-drop reordering, multi-language support with RTL,
-certificate builder, preview mode, and auto-save to localStorage.
-
-- Keyboard-accessible drag-and-drop via `@dnd-kit`
-- Per-language version isolation (`versions: Record<Language, CourseVersion>`)
-- RTL support via `dir` attribute on app root (Arabic layout flips correctly)
-- Certificate builder with editable student name and dynamic preview
-- Dark/light mode, undo/redo history (50-step), auto-save to localStorage
-- 54 unit tests · strict TypeScript · Playwright e2e suite
-
-**Stack:** React 19 · Vite · TypeScript · Zustand · @dnd-kit · Tailwind v4 · Vitest · Playwright
+- Batching
+- Persistence
+- Selectors
+- Hooks
+- Store registries
+- Optimized subscriptions
 
 ---
 
-### [AI Chat Workspace](./ai-chat) — Realtime Multi-Provider AI Chat
+### Enterprise SaaS / ERP
 
-> **Skills demo** — Not tied to any client; a from-scratch showcase of LLM integration
+Experience building complex business applications including:
 
-A from-scratch realtime AI chat with **bring-your-own-key** multi-provider
-support: Google Gemini, OpenAI, OpenRouter, Groq, Together AI, Mistral, and
-DeepSeek — with a free simulated default that needs no key, no signup, and no
-payment.
-
-- **Pluggable provider layer** — one `ProviderAdapter` interface; a shared SSE
-  parser drives every OpenAI-compatible endpoint while Gemini uses its native
-  REST streaming (`:streamGenerateContent`)
-- **BYOK key management** — env-var-first resolution with in-app paste-and-store
-  fallback (localStorage only, nothing bundled ever ships a secret)
-- **Streaming UX** — token-by-token rendering, auto-scroll + jump-to-latest,
-  stop with partial-content retention, retry on error
-- **Simulated fallback** — zero-setup offline mode streams deterministic demo
-  responses whenever a live provider has no key configured
-- Session management, sanitized markdown with code copy, dark/light, mobile drawer
-- 92 unit/integration tests behind an 80% coverage gate · 15 Playwright e2e scenarios
-
-**Stack:** React 19 · Vite 8 · TypeScript · Tailwind v4 · Zustand 5 · Vitest · Playwright
+- Learning platforms
+- ERP systems
+- Financial modules
+- Drag-and-drop builders
+- Administrative dashboards
+- AI-powered product features
 
 ---
 
-## Production context
+## Connect
 
-### [Qumra](https://www.linkedin.com/company/qumracloud) (Saudi retail/SaaS client — Mostadam)
-
-- **Offline-first POS** — SQLite/WASM local DB, USB thermal printing, PWA,
-  Electron desktop with cross-platform installers (Win/macOS/Linux) via CI
-- **`@qumra/pos-core`** — shared data-access library (Web + Electron + React
-  Native) covering ~85% of the app's data layer
-- **Accounts + partner portal** — unified auth, dual-token GraphQL
-- Full **AR/EN localization and RTL** throughout
-
-### [Dexef](https://www.linkedin.com/company/dexef) (Unified ERP Suite)
-
-- **Admin dashboard** — 25+ modules (CRM, Billing, Governance, Marketing,
-  Analytics), rich-text editor, custom query builder
-
-### [Lumofy](https://www.linkedin.com/company/lumofyinc) (Corporate Learning Experience Platform)
-
-- **Course builder** — drag-and-drop course and content template editing with
-  multi-language version isolation
-- **Certificate builder** — drag-and-drop certificate template editor
-- **AI-powered features** — content recommendations, AI-generated learning
-  content, competency analysis
-- **Architecture migrations** — MUI → Ant Design, Zustand state management
-- Improved LXP UI performance by **60%** through rendering optimization
-
-## Running locally
-
-Each project is self-contained. See its README for setup instructions:
-
-```bash
-# Offline POS (Qumra)
-cd offline-pos && pnpm install && pnpm dev    # → :5173
-
-# Admin Dashboard (Qumra)
-cd admin-dashboard && pnpm install && pnpm dev  # → :3000
-
-# SaaS Starter — requires Postgres on :5432 (Qumra)
-cd saas-starter && pnpm install && pnpm dev       # → :3000 + :4000
-
-# Course Builder (Lumofy)
-cd course-builder && pnpm install && pnpm dev     # → :5173
-
-# AI Chat Workspace (skills demo — free simulated default, BYOK for live providers)
-cd ai-chat && pnpm install && pnpm dev            # → :5173
-```
-
-## Contact
-
-Mohamed Elgohary — [melgohary.dev@gmail.com](mailto:melgohary.dev@gmail.com) · [GitHub](https://github.com/melgohary-dev) · [LinkedIn](https://www.linkedin.com/in/melgohary-dev)
+- LinkedIn: https://www.linkedin.com/in/melgohary-dev
+- GitHub: https://github.com/melgohary-dev
+- Email: melgohary.dev@gmail.com
