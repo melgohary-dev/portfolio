@@ -1316,7 +1316,7 @@ body::before {
           <span class="sample-label">Sample — Offline-First POS</span>
         </div>
         <h3>OfflinePOS</h3>
-        <p>Mirror of the production POS system I architected at Qumra. Zero network dependency, SQLite locally, background sync, multi-tab sync, parked carts, multi-tax, full AR/EN RTL. The real system handles live orders and payment integrations.</p>
+          <p>Mirror of the production offline-first POS I architected at Qumra. SQLite locally, background sync with retry/backoff, multi-tab sync, parked carts, multi-tax + percent discounts, order editing, outbox-style mutation queue, live queries. Built with Electron desktop wrapper, CI/CD, and cross-platform installers. The real system handles live orders and payment integrations.</p>
         <div class="tags">
           <span>React 19</span>
           <span>SQLite</span>
@@ -1382,7 +1382,7 @@ body::before {
           <span class="sample-label">Sample — Drag-and-Drop Builder</span>
         </div>
         <h3>Course Builder</h3>
-        <p>Distills the drag-and-drop content builder I designed at Lumofy for a corporate LXP. Per-language version isolation, RTL, certificate builder, undo/redo. The production system served non-technical admins building courses, content, and certificate templates at scale.</p>
+          <p>Distills the drag-and-drop content builder I designed at Lumofy for a corporate LXP. Per-language version isolation (versions: Record&lt;Language, CourseVersion&gt;), RTL support, certificate builder, undo/redo history (50-step), auto-save to localStorage, keyboard-accessible dnd-kit. The production system served non-technical admins building courses, content, and certificate templates at scale.</p>
         <div class="tags">
           <span>React 19</span>
           <span>@dnd-kit</span>
