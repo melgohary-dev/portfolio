@@ -42,3 +42,4 @@ Thumbs.db
 # Local planning / workflow notes (not published)
 planning/
 *.log.err
+.vercel
